@@ -1,4 +1,4 @@
-import { convertMarkdownFiles, diagnostic } from '@md-to-latex/converter';
+import { convertYaxmFiles, diagnostic } from '@md-to-latex/converter';
 import * as fs from 'fs';
 import * as path from 'path';
 import yaml from 'js-yaml';
@@ -8,7 +8,7 @@ describe('convertMarkdownFiles', function () {
     const fullDiagnosticList: diagnostic.DiagnoseList = [];
 
     beforeAll(() => {
-        const convertResult = convertMarkdownFiles({
+        const convertResult = convertYaxmFiles({
             rootDir: __dirname,
             buildConfig: yaml.load(
                 fs.readFileSync(

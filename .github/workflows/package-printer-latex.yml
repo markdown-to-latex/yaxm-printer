@@ -32,14 +32,11 @@ jobs:
                       ${{ runner.os }}-build-
                       ${{ runner.os }}-
             - name: Update NPM
-              working-directory: ./printers/latex
               run: npm install -g npm
             - name: Install dependencies
-              working-directory: ./printers/latex
               run: npm ci
             - name: Run prettier
-              working-directory: ./printers/latex
-              run: npm run prettier
+              run: npm run printer-latex-prettier
     test:
         runs-on: ubuntu-latest
         steps:
@@ -76,7 +73,7 @@ jobs:
               run: npm run test
     publish:
         runs-on: ubuntu-latest
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v-printer-latex')
         needs:
             - test
             - prettier

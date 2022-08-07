@@ -1,8 +1,8 @@
-import {parseFile} from '@md-to-latex/converter/dist/ast/parsing';
-import {applyMacrosFull} from '@md-to-latex/converter/dist/macro';
-import {buildConfig, createPrinterLatex} from '../../src';
-import {DiagnoseList} from '@md-to-latex/converter/dist/diagnostic';
-import {YAXMLatexPrinterConfig} from "../../src/config";
+import { parseFile } from '@md-to-latex/converter/dist/ast/parsing';
+import { applyMacrosFull } from '@md-to-latex/converter/dist/macro';
+import { buildConfig, createPrinterLatex } from '../../src';
+import { DiagnoseList } from '@md-to-latex/converter/dist/diagnostic';
+import { YAXMLatexPrinterConfig } from '../../src/config';
 
 function processingChain(
     text: string,
@@ -11,7 +11,7 @@ function processingChain(
     result: string;
     diagnostic: DiagnoseList;
 } {
-    const {result: fileNode, diagnostic: fileDiagnostic} = parseFile(
+    const { result: fileNode, diagnostic: fileDiagnostic } = parseFile(
         text,
         'filepath',
     );
@@ -19,7 +19,7 @@ function processingChain(
     const macroDiagnostic = applyMacrosFull(fileNode);
 
     const printer = createPrinterLatex(buildConfig(config));
-    const {result, diagnostic: printerDiagnostic} = printer.processNode(
+    const { result, diagnostic: printerDiagnostic } = printer.processNode(
         printer,
         fileNode,
     );

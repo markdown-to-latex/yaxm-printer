@@ -1,5 +1,8 @@
 import { NodeAbstract, NodeType } from '@md-to-latex/converter/dist/ast/node';
-import { LatexInterpretation, LatexPrinterConfiguration } from './printerConfig';
+import {
+    LatexInterpretation,
+    LatexPrinterConfiguration,
+} from './printerConfig';
 import { Escaper } from './string';
 import {
     DiagnoseErrorType,

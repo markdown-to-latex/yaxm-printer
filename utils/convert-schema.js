@@ -3,7 +3,7 @@ const schemaConverter = require('json-schema-to-typescript');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fs = require('fs');
-const path = require("path");
+const path = require('path');
 
 function __convertSchema() {
     // compile from file
@@ -14,5 +14,4 @@ function __convertSchema() {
 
 module.exports = {
     convertSchema: __convertSchema,
-}
-
+};

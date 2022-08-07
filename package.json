@@ -1,0 +1,14 @@
+{
+    "name": "yaxm-printers__",
+    "version": "0.0.0-dev.0",
+    "private": true,
+    "scripts": {
+        "prettier": "prettier --check .",
+        "prettier-fix": "prettier --write .",
+        "printer-latex-prettier": "prettier --check printers/latex --ignore-path printers.prettierignore",
+        "printer-latex-prettier-fix": "prettier --write printers/latex --ignore-path printers.prettierignore"
+    },
+    "devDependencies": {
+        "prettier": "^2.7.1"
+    }
+}

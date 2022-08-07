@@ -1,8 +1,8 @@
-import {convertMarkdownFiles, diagnostic} from '@md-to-latex/converter';
+import { convertMarkdownFiles, diagnostic } from '@md-to-latex/converter';
 import * as fs from 'fs';
 import * as path from 'path';
 import yaml from 'js-yaml';
-import {buildConfig, createPrinterLatex} from "../../src";
+import { buildConfig, createPrinterLatex } from '../../src';
 
 describe('convertMarkdownFiles', function () {
     const fullDiagnosticList: diagnostic.DiagnoseList = [];
@@ -10,7 +10,12 @@ describe('convertMarkdownFiles', function () {
     beforeAll(() => {
         const convertResult = convertMarkdownFiles({
             rootDir: __dirname,
-            buildConfig: yaml.load(fs.readFileSync(path.join(__dirname, 'yaxm-build.yml'), 'utf-8')) as any,
+            buildConfig: yaml.load(
+                fs.readFileSync(
+                    path.join(__dirname, 'yaxm-build.yml'),
+                    'utf-8',
+                ),
+            ) as any,
         });
         fullDiagnosticList.push(...convertResult.diagnostic);
 
@@ -20,13 +25,11 @@ describe('convertMarkdownFiles', function () {
 
             const fullOutPath = path.join(__dirname, data.fileInfo.out);
 
-            fs.mkdirSync(path.dirname(fullOutPath), {recursive: true});
+            fs.mkdirSync(path.dirname(fullOutPath), { recursive: true });
             fs.writeFileSync(fullOutPath, result.result, 'utf-8');
 
             fullDiagnosticList.push(...result.diagnostic);
         });
-
-
     });
 
     const fileParameters = {

@@ -1,7 +1,4 @@
-import {
-    defaultEscapes,
-    LatexPrinterConfigurationEscapeData,
-} from './string';
+import { defaultEscapes, LatexPrinterConfigurationEscapeData } from './string';
 
 /**
  * Information about LaTeX margins

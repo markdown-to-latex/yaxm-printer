@@ -7,8 +7,6 @@
         "prebuild": "npm run convert-schema",
         "build": "tsc --build --pretty",
         "watch": "tsc --build --watch --pretty",
-        "prettier": "prettier --check .",
-        "prettier-fix": "prettier --write .",
         "test": "jest test",
         "convert-schema": "node ./utils/convert-schema.js && prettier --write src/config/types.ts"
     },
@@ -41,7 +39,6 @@
         "typescript": "^4.7.4",
         "@md-to-latex/converter": "file:../../../md-to-latex-converter",
         "utils__": "file:../../utils"
-
     },
     "dependencies": {
         "js-yaml": "^4.1.0",

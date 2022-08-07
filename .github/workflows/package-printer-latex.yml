@@ -62,6 +62,9 @@ jobs:
             - name: Update NPM
               working-directory: ./printers/latex
               run: npm install -g npm
+            - name: Install utils dependencies
+              working-directory: ./utils
+              run: npm ci
             - name: Install dependencies
               working-directory: ./printers/latex
               run: npm ci
@@ -101,6 +104,9 @@ jobs:
             - name: Update NPM
               working-directory: ./printers/latex
               run: npm install -g npm
+            - name: Install utils dependencies
+              working-directory: ./utils
+              run: npm ci
             - name: Install dependencies
               working-directory: ./printers/latex
               run: npm ci

@@ -91,6 +91,7 @@ export interface LatexPrinterConfigurationMarginInfo {
 }
 
 export type LatexInterpretation =
+    | 'default'
     | 'monospace'
     | 'bold'
     | 'underline'

@@ -358,6 +358,7 @@ const linkTextWrapper: {
         config: LatexPrinterConfiguration,
     ) => string;
 } = {
+    default: text => text,
     bold: text => `\\textbf{${text}}`,
     italic: text => `\\textit{${text}}`,
     monospace: text => `\\texttt{${text}}`,

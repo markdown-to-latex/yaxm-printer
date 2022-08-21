@@ -384,7 +384,7 @@ export const processingVisitors: ProcessingVisitors = {
 
     [NodeType.OpCode]: internalUnparsableNodeType,
     [NodeType.Latex]: (printer, node) => ({
-        result: node.text,
+        result: node.text.text,
         diagnostic: [],
     }),
     [NodeType.LatexSpan]: (printer, node) => ({
@@ -392,7 +392,7 @@ export const processingVisitors: ProcessingVisitors = {
         diagnostic: [],
     }),
     [NodeType.Formula]: (printer, node) => ({
-        result: getLatexMath(node.text, printer.config),
+        result: getLatexMath(node.text.text, printer.config),
         diagnostic: [],
     }),
     [NodeType.FormulaSpan]: (printer, node) => ({

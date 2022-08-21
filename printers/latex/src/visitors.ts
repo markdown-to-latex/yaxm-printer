@@ -34,7 +34,7 @@ import {
     getLatexTable,
 } from './printer';
 import { removeStringUnnecessaryLineBreaks } from './string';
-import { Escaper } from './string/escapes';
+import { Escaper } from './string';
 
 function isNodeBeforeBoxed(node: NodeAbstract): boolean {
     let right = getNodeRightNeighbourLeaf(node);
@@ -123,8 +123,8 @@ export const processingVisitors: ProcessingVisitors = {
                 {
                     codeIndex: (node.index + 1).toString(),
                     codeTitle: nameResult.result,
-                    lang: node.lang ?? 'text',
-                    text: node.text,
+                    lang: node.lang.text ?? 'text',
+                    text: node.code.text,
                     removeSpace: isNodeBeforeBoxed(node),
                 },
                 printer.config,

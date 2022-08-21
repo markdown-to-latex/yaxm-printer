@@ -31,7 +31,7 @@
                 "underline",
                 "italic"
             ],
-            "default": "underline"
+            "default": "default"
         },
         "useCodeSpanAs": {
             "type": "string",

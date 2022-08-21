@@ -124,7 +124,7 @@ export interface LatexPrinterConfigurationPartial
 
 const defaultConfig: LatexPrinterConfiguration = {
     useCodeSpanAs: 'quotes',
-    useLinkAs: 'underline',
+    useLinkAs: 'default',
     extendAutoEscapes: [],
     defaultAutoEscapes: true,
     margin: {

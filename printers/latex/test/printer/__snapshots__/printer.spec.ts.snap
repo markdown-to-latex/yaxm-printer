@@ -152,7 +152,7 @@ exports[`CodeSpan Quote 1`] = `
 exports[`Escapes Default escapes 1`] = `
 "\\\\section{\\\\uppercase{Header}}
 
-\\\\underline{https://testing.url/com?some=thing\\\\&wtf\\\\#xdxdxd}
+https://testing.url/com?some=thing\\\\&wtf\\\\#xdxdxd
 
 The \\"{}definition\\"{} increased by 1\\\\% (more text more text).
 "
@@ -302,8 +302,8 @@ exports[`complex latex Text ' dereplacement 1`] = `
 "
 `;
 
-exports[`complex latex Text with escapes ("<" sound be corrent also) 1`] = `
-"Text with \\\\<assdasd.
+exports[`complex latex Text with escapes ("<" should be correct also) 1`] = `
+"Text with <<>assdasd.
 "
 `;
 
@@ -738,7 +738,7 @@ exports[`url variants Bold url 1`] = `
 `;
 
 exports[`url variants Default url 1`] = `
-"\\\\underline{https://example.com/index\\\\_page.html?asd=asdasd\\\\&gege=gegege\\\\#header}
+"https://example.com/index\\\\_page.html?asd=asdasd\\\\&gege=gegege\\\\#header
 "
 `;
 

@@ -318,9 +318,9 @@ Text with 10% number.
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Text with escapes ("<" sound be corrent also)', () => {
+    test('Text with escapes ("<" should be correct also)', () => {
         const result = processingChain(`
-Text with \\<assdasd.
+Text with <<>assdasd.
 `);
 
         expect(result.diagnostic).toHaveLength(0);
@@ -497,7 +497,7 @@ describe('Escapes', () => {
         const result = processingChain(`
 # Header
 
-[Link name](https://testing.url/com?some=thing&wtf#xdxdxd)
+<https://testing.url/com?some=thing&wtf#xdxdxd>
 
 The "definition" increased by 1% (more text more text).
     `);

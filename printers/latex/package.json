@@ -1,6 +1,6 @@
 {
     "name": "@md-to-latex/yaxm-printer-latex",
-    "version": "1.0.0-beta.1",
+    "version": "1.0.0-beta.2",
     "description": "Latex Printer for Yet Another eXtended Markdown",
     "main": "dist/index.js",
     "scripts": {
@@ -37,7 +37,7 @@
         "ts-jest": "^28.0.7",
         "ts-node": "^10.9.1",
         "typescript": "^4.7.4",
-        "@md-to-latex/converter": "^2.0.0-beta.4",
+        "@md-to-latex/converter": "^2.0.0-beta.7",
         "utils__": "file:../../utils"
     },
     "dependencies": {

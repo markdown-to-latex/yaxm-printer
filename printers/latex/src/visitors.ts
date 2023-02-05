@@ -481,4 +481,18 @@ export const processingVisitors: ProcessingVisitors = {
             diagnostic: childrenResult.diagnostic,
         };
     },
+
+    [ProcessedNodeType.PictureAmount]: (printer, node) => {
+        return {
+            result: `${node.numberLazy()}`,
+            diagnostic: [],
+        };
+    },
+
+    [ProcessedNodeType.TableAmount]: (printer, node) => {
+        return {
+            result: `${node.numberLazy()}`,
+            diagnostic: [],
+        };
+    },
 };

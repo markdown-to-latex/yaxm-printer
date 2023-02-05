@@ -9,6 +9,6 @@
         "printer-latex-prettier-fix": "prettier --write printers/latex --ignore-path printers.prettierignore"
     },
     "devDependencies": {
-        "prettier": "^2.7.1"
+        "prettier": "^2.8.3"
     }
 }

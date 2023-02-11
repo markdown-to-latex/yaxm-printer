@@ -4,16 +4,16 @@ import {
     ProcessingVisitors,
     processingVisitors
 } from "./visitors";
-import { buildConfig, DocxPrinterConfiguration } from "./printerConfig";
-import { NodeProcessed } from "@md-to-latex/converter/dist/macro/node";
-import { DiagnoseList } from "@md-to-latex/converter/dist/diagnostic";
-import { Node, RawNode } from "@md-to-latex/converter/dist/ast/node";
+import {buildConfig, DocxPrinterConfiguration} from "./printerConfig";
+import {NodeProcessed} from "@md-to-latex/converter/dist/macro/node";
+import {DiagnoseList} from "@md-to-latex/converter/dist/diagnostic";
+import {Node, RawNode} from "@md-to-latex/converter/dist/ast/node";
 import * as docx from "docx";
-import { XmlComponent } from "docx";
-import { validateDocxRootNode } from "./validation";
+import {XmlComponent} from "docx";
+import {validateDocxRootNode} from "./validation";
 
 const processNode: DocxPrinterVisitor<NodeProcessed | RawNode | Node> =
-    function(printer, node) {
+    function (printer, node) {
         return processingVisitors[node.type](
             printer,
             /* TODO: resolve that */ node as any
@@ -21,10 +21,10 @@ const processNode: DocxPrinterVisitor<NodeProcessed | RawNode | Node> =
     };
 
 const processNodeList: DocxPrinterVisitorList<NodeProcessed | RawNode | Node> =
-    function(printer, nodes, separator = "") {
-        const processedNodes = nodes.map(node =>
-            printer.processNode(printer, node)
-        );
+    async function (printer, nodes) {
+        const processedNodes = await Promise.all(nodes.map(async node =>
+            await printer.processNode(printer, node)
+        ));
 
         const diagnostic: DiagnoseList = processedNodes.flatMap(
             nodes => nodes.diagnostic
@@ -72,7 +72,7 @@ export async function printerResultToBuffer(result: Readonly<XmlComponent[]>): P
         },
         sections: [{
             children: [...result.map(n => {
-                if (!(n instanceof docx.Paragraph)) {
+                if (!(n instanceof docx.Paragraph || n instanceof docx.Table)) {
                     return new docx.Paragraph({
                         children: [n]
                     })
@@ -85,4 +85,4 @@ export async function printerResultToBuffer(result: Readonly<XmlComponent[]>): P
 }
 
 
-export { buildConfig, validateDocxRootNode };
+export {buildConfig, validateDocxRootNode};

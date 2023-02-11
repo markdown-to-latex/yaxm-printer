@@ -51,6 +51,8 @@
         "svg2img": "^1.0.0-beta.2",
         "svg2png": "^4.1.1",
         "tex-to-svg": "^0.2.0",
-        "texsvg": "^2.0.1"
+        "tex2svg": "^1.0.2",
+        "texsvg": "^2.0.1",
+        "image-size": "^1.0.2"
     }
 }

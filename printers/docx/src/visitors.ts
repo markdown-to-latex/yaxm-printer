@@ -1,5 +1,6 @@
 import {
-    getNodeRightNeighbourLeaf,
+    findNodeData,
+    ListNode,
     NodeAbstract,
     NodeType,
     RawNodeType,
@@ -16,40 +17,17 @@ import {
     nodeToDiagnose,
 } from '@md-to-latex/converter/dist/diagnostic';
 import * as docx from 'docx';
-import { AlignmentType, Paragraph, TextRun } from 'docx';
+import { AlignmentType, Paragraph, TextRun, UnderlineType } from 'docx';
 import {
     formulaNodeToPicture,
+    getWordListItem,
+    printFormulaProcessedNode,
     printKeyNode,
     printLazyNumberNode,
 } from './printer';
 import * as fs from 'fs';
 import path from 'path';
 import sizeOf from 'image-size';
-
-function isNodeBeforeBoxed(node: NodeAbstract): boolean {
-    let right = getNodeRightNeighbourLeaf(node);
-
-    while (
-        right !== null &&
-        [NodeType.Space, NodeType.OpCode].indexOf(right.type as NodeType) !== -1
-    ) {
-        right = getNodeRightNeighbourLeaf(right);
-    }
-    if (right === null) {
-        return false;
-    }
-
-    return (
-        [
-            NodeType.Code,
-            NodeType.Table,
-            NodeType.Image,
-            ProcessedNodeType.CodeProcessed,
-            ProcessedNodeType.TableProcessed,
-            ProcessedNodeType.PictureProcessed,
-        ].indexOf(right.type as NodeType) !== -1
-    );
-}
 
 // Editing
 
@@ -98,7 +76,14 @@ const internalUnparsableNodeType: DocxPrinterVisitor = async (
 
 const internalTODO: DocxPrinterVisitor = async (printer, node) => ({
     // result: [],
-    result: [new docx.TextRun({ text: `[TODO (inline) '${node.type}']` })],
+    result: [
+        new docx.TextRun({
+            text: `[TODO (inline) '${node.type}']`,
+            color: 'FFFFFF',
+            highlight: 'red',
+            bold: true,
+        }),
+    ],
     diagnostic: [
         nodeToDiagnose(
             node,
@@ -109,7 +94,18 @@ const internalTODO: DocxPrinterVisitor = async (printer, node) => ({
     ],
 });
 const internalTODOParagraph: DocxPrinterVisitor = async (printer, node) => ({
-    result: [new docx.Paragraph({ text: `[TODO (paragraph) '${node.type}']` })],
+    result: [
+        new docx.Paragraph({
+            children: [
+                new docx.TextRun({
+                    text: `[TODO (paragraph) '${node.type}']`,
+                    color: 'FFFFFF',
+                    highlight: 'red',
+                    bold: true,
+                }),
+            ],
+        }),
+    ],
     diagnostic: [
         nodeToDiagnose(
             node,
@@ -127,7 +123,6 @@ export const processingVisitors: ProcessingVisitors = {
     [RawNodeType.ParagraphBreak]: internalUnparsableNodeType,
     [RawNodeType.TextBreak]: internalUnparsableNodeType,
 
-    [NodeType.Space]: internalTODO,
     [NodeType.Code]: internalUnparsableNodeType,
     [ProcessedNodeType.CodeProcessed]: internalTODOParagraph,
     [NodeType.Heading]: async (printer, node) => {
@@ -168,11 +163,71 @@ export const processingVisitors: ProcessingVisitors = {
             diagnostic: [...result.diagnostic, ...diagnostic],
         };
     },
+
     [NodeType.Table]: internalUnparsableNodeType,
+
+    // TODO: Table pack
     [ProcessedNodeType.TableProcessed]: internalTODOParagraph,
+
     [NodeType.Blockquote]: unparsableNodeType,
-    [NodeType.List]: internalTODO,
-    [NodeType.ListItem]: internalTODO,
+    [NodeType.List]: async (printer, node) =>
+        await printer.processNodeList(printer, node.children),
+    [NodeType.ListItem]: async (printer, node) => {
+        let superparentList: null | ListNode = null;
+        let parentList: null | ListNode = null;
+        let parent = node.parent;
+        let depth = 0;
+
+        const diagnostic: DiagnoseList = [];
+
+        // TODO: encapsulate (duplication with latex printer)
+        while (parent !== null) {
+            if (parent.type === NodeType.List) {
+                parentList ??= parent as ListNode;
+                superparentList = parent as ListNode;
+                ++depth;
+            }
+            parent = parent.parent;
+        }
+        if (parentList === null || superparentList === null) {
+            diagnostic.push(
+                nodeToDiagnose(
+                    node,
+                    DiagnoseSeverity.Error,
+                    DiagnoseErrorType.PrinterError,
+                    'Cannot find List parent for ListItem (internal error)',
+                ),
+            );
+
+            return {
+                result: [],
+                diagnostic,
+            };
+        }
+
+        const index = findNodeData(node).index;
+        const childrenResult = await printer.processNodeList(
+            printer,
+            node.children,
+        );
+        diagnostic.push(...childrenResult.diagnostic);
+
+        const latexItemResult = await getWordListItem(
+            printer,
+            {
+                xml: childrenResult.result,
+                depth: depth,
+                index: index,
+                isOrdered: parentList.ordered,
+            },
+            node,
+            superparentList,
+        );
+        return {
+            result: latexItemResult.result,
+            diagnostic,
+        };
+    },
     [NodeType.Paragraph]: async (printer, node) => {
         const result = await printer.processNodeList(printer, node.children);
 
@@ -185,7 +240,6 @@ export const processingVisitors: ProcessingVisitors = {
             diagnostic: [...result.diagnostic],
         };
     },
-    [NodeType.Def]: unparsableNodeType,
     [NodeType.Escape]: internalTODO,
     [NodeType.Text]: async (printer, node) => {
         return {
@@ -197,7 +251,6 @@ export const processingVisitors: ProcessingVisitors = {
             diagnostic: [],
         };
     },
-    [NodeType.Html]: unparsableNodeType,
     [NodeType.Link]: internalTODO,
     [NodeType.Image]: internalUnparsableNodeType,
     [ProcessedNodeType.PictureProcessed]: async (printer, node) => {
@@ -291,8 +344,40 @@ export const processingVisitors: ProcessingVisitors = {
             diagnostic: [...diagnostic],
         };
     },
-    [NodeType.Strong]: internalTODO,
-    [NodeType.Underline]: internalTODO,
+    [NodeType.Strong]: async (printer, node) => {
+        const result = await printer.processNodeList(printer, node.children);
+
+        return {
+            result: await Promise.all(
+                result.result.map(
+                    n =>
+                        new TextRun({
+                            children: [n],
+                            bold: true,
+                        }),
+                ),
+            ),
+            diagnostic: [],
+        };
+    },
+    [NodeType.Underline]: async (printer, node) => {
+        const result = await printer.processNodeList(printer, node.children);
+
+        return {
+            result: await Promise.all(
+                result.result.map(
+                    n =>
+                        new TextRun({
+                            children: [n],
+                            underline: {
+                                type: UnderlineType.SINGLE,
+                            },
+                        }),
+                ),
+            ),
+            diagnostic: [],
+        };
+    },
     // [NodeType.Em]: internalTODO,
     [NodeType.Em]: async (printer, node) => {
         const result = await printer.processNodeList(printer, node.children);
@@ -326,8 +411,35 @@ export const processingVisitors: ProcessingVisitors = {
             diagnostic: [],
         };
     },
-    [NodeType.Br]: internalTODO,
-    [NodeType.Del]: internalTODO,
+    [NodeType.Br]: async (printer, node) => {
+        return {
+            result: [],
+            diagnostic: [
+                nodeToDiagnose(
+                    node,
+                    DiagnoseSeverity.Info,
+                    DiagnoseErrorType.PrinterError,
+                    'BR node prints into nothing',
+                ),
+            ],
+        };
+    },
+    [NodeType.Del]: async (printer, node) => {
+        const result = await printer.processNodeList(printer, node.children);
+
+        return {
+            result: await Promise.all(
+                result.result.map(
+                    n =>
+                        new TextRun({
+                            children: [n],
+                            strike: true,
+                        }),
+                ),
+            ),
+            diagnostic: [],
+        };
+    },
     [NodeType.File]: async (printer, node) => {
         // TODO: if it is not a paragraph -> wrap over a paragraph
         // TODO: validate paragraphs in paragraphs
@@ -341,10 +453,13 @@ export const processingVisitors: ProcessingVisitors = {
         };
     },
 
+    // TODO: spacing
     [NodeType.NonBreakingSpace]: internalTODO,
     [NodeType.ThinNonBreakingSpace]: internalTODO,
 
+    // TODO: Table pack
     [NodeType.TableCell]: internalTODO,
+    // TODO: Table pack
     [NodeType.TableRow]: internalTODO,
 
     // TODO: Control sequences
@@ -355,29 +470,43 @@ export const processingVisitors: ProcessingVisitors = {
     [NodeType.OpCode]: internalUnparsableNodeType,
     [NodeType.Latex]: internalTODOParagraph,
     [NodeType.LatexSpan]: internalTODO,
-    [NodeType.Formula]: async (printer, node) => {
+    [NodeType.Formula]: internalUnparsableNodeType,
+    [NodeType.FormulaSpan]: async (printer, node) => {
         return {
             result: [await formulaNodeToPicture(node)],
             diagnostic: [],
         };
     },
-    [NodeType.FormulaSpan]: internalTODO,
     [NodeType.Comment]: internalUnparsableNodeType,
 
-    // [ProcessedNodeType.PictureKey]: internalTODO,
-    // [ProcessedNodeType.TableKey]: internalTODO,
-    // [ProcessedNodeType.ApplicationKey]: internalTODO,
-    // [ProcessedNodeType.ReferenceKey]: internalTODO,
     [ProcessedNodeType.PictureKey]: async (printer, node) => printKeyNode(node),
     [ProcessedNodeType.TableKey]: async (printer, node) => printKeyNode(node),
     [ProcessedNodeType.ApplicationKey]: async (printer, node) =>
         printKeyNode(node),
     [ProcessedNodeType.ReferenceKey]: async (printer, node) =>
         printKeyNode(node),
+    [ProcessedNodeType.FormulaKey]: async (printer, node) => printKeyNode(node),
 
-    // TODO WARNING: perhaps it is inside the paragraph
-    [ProcessedNodeType.AllApplications]: internalTODO /* WARNING Par*/,
-    [ProcessedNodeType.AllReferences]: internalTODO /* WARNING Par*/,
+    [ProcessedNodeType.FormulaProcessed]: async (printer, node) => {
+        return {
+            result: [await printFormulaProcessedNode(node)],
+            diagnostic: [],
+        };
+    },
+    [ProcessedNodeType.FormulaNoLabelProcessed]: async (printer, node) => {
+        return {
+            result: [
+                new docx.Paragraph({
+                    children: [await formulaNodeToPicture(node.text)],
+                    alignment: AlignmentType.CENTER,
+                }),
+            ],
+            diagnostic: [],
+        };
+    },
+
+    [ProcessedNodeType.AllApplications]: internalTODOParagraph,
+    [ProcessedNodeType.AllReferences]: internalTODOParagraph,
 
     [ProcessedNodeType.RawApplication]: internalTODO,
 
@@ -387,8 +516,6 @@ export const processingVisitors: ProcessingVisitors = {
 
     [ProcessedNodeType.Reference]: internalTODO,
 
-    // [ProcessedNodeType.PictureAmount]: internalTODO,
-    // [ProcessedNodeType.TableAmount]: internalTODO,
     [ProcessedNodeType.PictureAmount]: async (printer, node) =>
         printLazyNumberNode(node.numberLazy),
     [ProcessedNodeType.TableAmount]: async (printer, node) =>

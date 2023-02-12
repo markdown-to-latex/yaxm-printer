@@ -19,8 +19,10 @@ import {
 import * as docx from 'docx';
 import { AlignmentType, Paragraph, TextRun, UnderlineType } from 'docx';
 import {
+    createTextRunExt,
     formulaNodeToPicture,
     getWordListItem,
+    getWordTable,
     printFormulaProcessedNode,
     printKeyNode,
     printLazyNumberNode,
@@ -165,9 +167,31 @@ export const processingVisitors: ProcessingVisitors = {
     },
 
     [NodeType.Table]: internalUnparsableNodeType,
+    [ProcessedNodeType.TableProcessed]: async (printer, node) => {
+        const diagnostic: DiagnoseList = [];
+        const nameResult = await printer.processNodeList(printer, node.name);
+        diagnostic.push(...nameResult.diagnostic);
+        const headerResult = await printer.processNodeList(
+            printer,
+            node.header,
+        );
+        diagnostic.push(...headerResult.diagnostic);
+        const contentResult = await printer.processNodeList(printer, node.rows);
+        diagnostic.push(...contentResult.diagnostic);
 
-    // TODO: Table pack
-    [ProcessedNodeType.TableProcessed]: internalTODOParagraph,
+        const tableResult = getWordTable({
+            tableIndex: (node.index + 1).toString(),
+            tableTitle: nameResult.result,
+            header: (headerResult.result as [docx.TableRow])[0], // TODO: runtime check
+            content: contentResult.result as docx.TableRow[], // TODO: runtime check
+            colAmount: node.header[0].children.length,
+        });
+        diagnostic.push(...tableResult.diagnostic);
+        return {
+            result: tableResult.result,
+            diagnostic,
+        };
+    },
 
     [NodeType.Blockquote]: unparsableNodeType,
     [NodeType.List]: async (printer, node) =>
@@ -378,7 +402,6 @@ export const processingVisitors: ProcessingVisitors = {
             diagnostic: [],
         };
     },
-    // [NodeType.Em]: internalTODO,
     [NodeType.Em]: async (printer, node) => {
         const result = await printer.processNodeList(printer, node.children);
 
@@ -457,15 +480,63 @@ export const processingVisitors: ProcessingVisitors = {
     [NodeType.NonBreakingSpace]: internalTODO,
     [NodeType.ThinNonBreakingSpace]: internalTODO,
 
-    // TODO: Table pack
-    [NodeType.TableCell]: internalTODO,
-    // TODO: Table pack
-    [NodeType.TableRow]: internalTODO,
+    [NodeType.TableCell]: async (printer, node) => {
+        const result = await printer.processNodeList(printer, node.children);
+        return {
+            result: [
+                new docx.TableCell({
+                    children: [
+                        new Paragraph({
+                            children: result.result,
+                        }),
+                    ],
+                }),
+            ],
+            diagnostic: [...result.diagnostic],
+        };
+    },
+    [NodeType.TableRow]: async (printer, node) => {
+        const diagnostic: DiagnoseList = [];
+        const childrenResult = await printer.processNodeList(
+            printer,
+            node.children,
+        );
+        const notCell = childrenResult.result.filter(
+            c => !(c instanceof docx.TableCell),
+        );
+        if (notCell.length !== 0) {
+            console.error('Not cells', notCell);
+            diagnostic.push(
+                nodeToDiagnose(
+                    node,
+                    DiagnoseSeverity.Error,
+                    DiagnoseErrorType.PrinterError,
+                    `Not cell in row (internal error)`,
+                ),
+            );
+        }
+        const cells = childrenResult.result as docx.TableCell[];
+
+        return {
+            result: [
+                new docx.TableRow({
+                    children: cells,
+                }),
+            ],
+            diagnostic: [...diagnostic],
+        };
+    },
 
     // TODO: Control sequences
-    [NodeType.TableControlRow]: internalTODO,
+    [NodeType.TableControlRow]: async () => ({
+        result: [],
+        diagnostic: [],
+    }),
     // TODO: Control sequences
-    [NodeType.TableControlCell]: internalTODO,
+    [NodeType.TableControlCell]: async () => ({
+        result: [],
+        diagnostic: [],
+    }),
 
     [NodeType.OpCode]: internalUnparsableNodeType,
     [NodeType.Latex]: internalTODOParagraph,
@@ -473,7 +544,12 @@ export const processingVisitors: ProcessingVisitors = {
     [NodeType.Formula]: internalUnparsableNodeType,
     [NodeType.FormulaSpan]: async (printer, node) => {
         return {
-            result: [await formulaNodeToPicture(node)],
+            result: [
+                createTextRunExt({
+                    children: [await formulaNodeToPicture(node)],
+                    position: -6,
+                }),
+            ],
             diagnostic: [],
         };
     },

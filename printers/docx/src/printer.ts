@@ -2,16 +2,15 @@ import {
     ListItemNode,
     ListNode,
     NodeText,
-    NodeTextNode,
 } from '@md-to-latex/converter/dist/ast/node';
 import { DiagnoseList } from '@md-to-latex/converter/dist/diagnostic';
 import * as docx from 'docx';
 import {
     AlignmentType,
     Paragraph,
+    TextRun,
     VerticalAlign,
     WidthType,
-    XmlComponent,
 } from 'docx';
 import { default as texsvg } from 'texsvg';
 import { YAMLException } from 'js-yaml';
@@ -215,4 +214,67 @@ export async function formulaNodeToPicture(
             height: Math.ceil(h * k),
         },
     });
+}
+
+export interface WordTableInfo {
+    tableIndex: string;
+    tableTitle: docx.XmlComponent[];
+    header: docx.TableRow;
+    content: docx.TableRow[];
+    colAmount: number;
+}
+
+export function getWordTable(info: WordTableInfo): PrinterFunctionResult {
+    return {
+        result: [
+            new docx.Paragraph({
+                children: [
+                    new docx.TextRun({
+                        text: `Таблица ${info.tableIndex} – `,
+                    }),
+                    ...info.tableTitle,
+                ],
+            }),
+            new docx.Table({
+                width: {
+                    type: WidthType.PERCENTAGE,
+                    size: 100,
+                },
+                rows: [info.header, ...info.content],
+            }),
+        ],
+        diagnostic: [],
+    };
+}
+
+// ---------
+
+export interface IRunOptionsExt extends docx.IRunOptions {
+    /**
+     * In pt/2
+     */
+    position?: number;
+    spacing?: number;
+}
+
+export function createTextRunExt(options: IRunOptionsExt | string) {
+    // export class TextRunExt extends docx.TextRun
+    // doesn't work due to runtime constructor error
+
+    const textRun = new docx.TextRun(options);
+    const properties = (textRun as any).properties as docx.RunProperties;
+    if (typeof options !== 'string') {
+        if (options.position) {
+            properties.push(
+                new docx.NumberValueElement('w:position', options.position),
+            );
+        }
+        if (options.spacing) {
+            properties.push(
+                new docx.NumberValueElement('w:spacing', options.spacing),
+            );
+        }
+    }
+
+    return textRun;
 }

@@ -46,12 +46,6 @@
         "js-yaml": "^4.1.0",
         "json5": "^2.2.1",
         "jsonschema": "^1.4.1",
-        "svg-in-png": "^1.0.7",
-        "svg-png-converter": "^0.0.9",
-        "svg2img": "^1.0.0-beta.2",
-        "svg2png": "^4.1.1",
-        "tex-to-svg": "^0.2.0",
-        "tex2svg": "^1.0.2",
         "texsvg": "^2.0.1",
         "image-size": "^1.0.2"
     }

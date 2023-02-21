@@ -266,10 +266,11 @@ export const processingVisitors: ProcessingVisitors = {
     },
     [NodeType.Escape]: internalTODO,
     [NodeType.Text]: async (printer, node) => {
+        const text = node.text.replace(/ +/g, ' ')
         return {
             result: [
                 new docx.TextRun({
-                    text: node.text,
+                    text: text,
                 }),
             ],
             diagnostic: [],
@@ -476,9 +477,22 @@ export const processingVisitors: ProcessingVisitors = {
         };
     },
 
-    // TODO: spacing
-    [NodeType.NonBreakingSpace]: internalTODO,
-    [NodeType.ThinNonBreakingSpace]: internalTODO,
+    [NodeType.NonBreakingSpace]: async (_printer, node) => ({
+        result: [new docx.TextRun(" ")],
+        diagnostic: [
+            nodeToDiagnose(
+                node,
+                DiagnoseSeverity.Info,
+                DiagnoseErrorType.PrinterError,
+                'Docx printer NonBreakingSpace equals to the default space',
+            ),
+        ],
+    }),
+
+    [NodeType.ThinNonBreakingSpace]: async (_printer, _node) => ({
+        result: [new docx.TextRun('\xA0')],
+        diagnostic: [],
+    }),
 
     [NodeType.TableCell]: async (printer, node) => {
         const result = await printer.processNodeList(printer, node.children);
@@ -581,8 +595,28 @@ export const processingVisitors: ProcessingVisitors = {
         };
     },
 
-    [ProcessedNodeType.AllApplications]: internalTODOParagraph,
-    [ProcessedNodeType.AllReferences]: internalTODOParagraph,
+    [ProcessedNodeType.AllApplications]: async (printer, node) => {
+        // TODO(toliak): Check that all children are paragraphs
+        const result = await printer.processNodeList(printer, node.children);
+
+        return {
+            result: [
+                new docx.Paragraph({
+                    children: [...result.result],
+                }),
+            ],
+            diagnostic: [...result.diagnostic],
+        };
+    },
+    [ProcessedNodeType.AllReferences]: async (printer, node) => {
+        // TODO(toliak): Check that all children are paragraphs
+        const result = await printer.processNodeList(printer, node.children);
+
+        return {
+            result: [...result.result],
+            diagnostic: [...result.diagnostic],
+        };
+    },
 
     [ProcessedNodeType.RawApplication]: internalTODO,
 
@@ -590,7 +624,21 @@ export const processingVisitors: ProcessingVisitors = {
 
     [ProcessedNodeType.CodeApplication]: internalTODO,
 
-    [ProcessedNodeType.Reference]: internalTODO,
+    [ProcessedNodeType.Reference]: async (printer, node) => {
+        const result = await printer.processNodeList(printer, node.children);
+
+        return {
+            result: [
+                new docx.Paragraph({
+                    children: [
+                        new docx.TextRun(`${node.index}.\xA0`),
+                        ...result.result,
+                    ],
+                }),
+            ],
+            diagnostic: [...result.diagnostic],
+        };
+    },
 
     [ProcessedNodeType.PictureAmount]: async (printer, node) =>
         printLazyNumberNode(node.numberLazy),

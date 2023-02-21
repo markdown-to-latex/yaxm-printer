@@ -311,7 +311,7 @@ ${info.text}
 `;
 }
 
-export function getLatexMath(
+export function getLatexNoLabelMath(
     text: string,
     config: LatexPrinterConfiguration,
 ): string {
@@ -328,7 +328,29 @@ export function getLatexMath(
 \\begin{align*}
 \\displaystyle
 ${text}
-\\end{align*}    
+\\end{align*}
+`;
+}
+
+export function getLatexMath(
+    text: string,
+    index: number,
+    config: LatexPrinterConfiguration,
+): string {
+    return `
+
+\\setlength{\\abovedisplayskip}{${config.margin!.mathAboveDisplaySkip}}
+\\setlength{\\belowdisplayskip}{${config.margin!.mathBelowDisplaySkip}}
+\\setlength{\\abovedisplayshortskip}{${
+        config.margin!.mathAboveDisplayShortSkip
+    }}
+\\setlength{\\belowdisplayshortskip}{${
+        config.margin!.mathBelowDisplayShortSkip
+    }}
+\\begin{equation}\\label{eqn:${index}}
+\\displaystyle
+${text}
+\\end{equation}
 `;
 }
 

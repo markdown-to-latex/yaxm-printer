@@ -28,6 +28,7 @@ import {
     getLatexLinkText,
     getLatexListItem,
     getLatexMath,
+    getLatexNoLabelMath,
     getLatexPicture,
     getLatexRawApplication,
     getLatexRotatedPicture,
@@ -41,7 +42,7 @@ function isNodeBeforeBoxed(node: NodeAbstract): boolean {
 
     while (
         right !== null &&
-        [NodeType.Space, NodeType.OpCode].indexOf(right.type as NodeType) !== -1
+        [NodeType.OpCode].indexOf(right.type as NodeType) !== -1
     ) {
         right = getNodeRightNeighbourLeaf(right);
     }
@@ -111,10 +112,6 @@ export const processingVisitors: ProcessingVisitors = {
     [RawNodeType.ParagraphBreak]: internalUnparsableNodeType,
     [RawNodeType.TextBreak]: internalUnparsableNodeType,
 
-    [NodeType.Space]: () => ({
-        result: '\n',
-        diagnostic: [],
-    }),
     [NodeType.Code]: internalUnparsableNodeType,
     [ProcessedNodeType.CodeProcessed]: (printer, node) => {
         const nameResult = printer.processNodeList(printer, node.name);
@@ -227,7 +224,6 @@ export const processingVisitors: ProcessingVisitors = {
             diagnostic: result.diagnostic,
         };
     },
-    [NodeType.Def]: unparsableNodeType,
     [NodeType.Escape]: (printer, node) => {
         const text = Escaper.fromConfigLatex(printer.config)
             .prepare({
@@ -251,7 +247,6 @@ export const processingVisitors: ProcessingVisitors = {
             diagnostic: [],
         };
     },
-    [NodeType.Html]: unparsableNodeType,
     [NodeType.Link]: (printer, node) => {
         const childrenResult = printer.processNodeList(printer, node.children);
 
@@ -391,10 +386,7 @@ export const processingVisitors: ProcessingVisitors = {
         result: node.text,
         diagnostic: [],
     }),
-    [NodeType.Formula]: (printer, node) => ({
-        result: getLatexMath(node.text.text, printer.config),
-        diagnostic: [],
-    }),
+    [NodeType.Formula]: internalUnparsableNodeType,
     [NodeType.FormulaSpan]: (printer, node) => ({
         result: getLatexInlineMath(node.text, printer.config),
         diagnostic: [],
@@ -413,6 +405,19 @@ export const processingVisitors: ProcessingVisitors = {
         getLatexApplicationLetter(node.index, node),
     [ProcessedNodeType.ReferenceKey]: (printer, node) => ({
         result: (node.index + 1).toString(),
+        diagnostic: [],
+    }),
+
+    [ProcessedNodeType.FormulaProcessed]: (printer, node) => ({
+        result: getLatexMath(node.text.text, node.index, printer.config),
+        diagnostic: [],
+    }),
+    [ProcessedNodeType.FormulaNoLabelProcessed]: (printer, node) => ({
+        result: getLatexNoLabelMath(node.text.text, printer.config),
+        diagnostic: [],
+    }),
+    [ProcessedNodeType.FormulaKey]: (printer, node) => ({
+        result: `\\ref{eqn:${node.index}}`,
         diagnostic: [],
     }),
 

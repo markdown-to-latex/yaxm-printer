@@ -1,0 +1,120 @@
+name: NPM Package (printer-docx)
+
+on:
+    pull_request:
+        paths-ignore:
+            - '**.md'
+    push:
+        paths-ignore:
+            - '**.md'
+
+jobs:
+    prettier:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: Setup node 14
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 14.x
+            - name: Cache Node files
+              uses: actions/cache@v3
+              env:
+                  cache-name: cache-node-modules
+              with:
+                  # npm cache files are stored in `~/.npm` on Linux/macOS
+                  path: |
+                      ~/.npm
+                      ./transformer
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-${{ env.cache-name }}-
+                      ${{ runner.os }}-build-
+                      ${{ runner.os }}-
+            - name: Update NPM
+              run: npm install -g npm
+            - name: Install dependencies
+              run: npm ci
+            - name: Run prettier
+              run: npm run printer-docx-prettier
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: Setup node 14
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 14.x
+            - name: Cache Node files
+              uses: actions/cache@v3
+              env:
+                  cache-name: cache-node-modules
+              with:
+                  # npm cache files are stored in `~/.npm` on Linux/macOS
+                  path: |
+                      ~/.npm
+                      ./transformer
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-${{ env.cache-name }}-
+                      ${{ runner.os }}-build-
+                      ${{ runner.os }}-
+            - name: Update NPM
+              working-directory: ./printers/docx
+              run: npm install -g npm
+            - name: Install utils dependencies
+              working-directory: ./utils
+              run: npm ci
+            - name: Install dependencies
+              working-directory: ./printers/docx
+              run: npm ci
+            - name: Build project
+              working-directory: ./printers/docx
+              run: npm run build
+            - name: Run test
+              working-directory: ./printers/docx
+              run: npm run test
+    publish:
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v-printer-docx')
+        needs:
+            - test
+            - prettier
+        steps:
+            - uses: actions/checkout@v3
+            - name: Setup node 14
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '14.x'
+                  registry-url: 'https://registry.npmjs.org'
+            - name: Cache Node files
+              uses: actions/cache@v3
+              env:
+                  cache-name: cache-node-modules
+              with:
+                  # npm cache files are stored in `~/.npm` on Linux/macOS
+                  path: |
+                      ~/.npm
+                      ./transformer
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-${{ env.cache-name }}-
+                      ${{ runner.os }}-build-
+                      ${{ runner.os }}-
+            - name: Update NPM
+              working-directory: ./printers/docx
+              run: npm install -g npm
+            - name: Install utils dependencies
+              working-directory: ./utils
+              run: npm ci
+            - name: Install dependencies
+              working-directory: ./printers/docx
+              run: npm ci
+            - name: Build project
+              working-directory: ./printers/docx
+              run: npm run build
+            - name: Run publish
+              working-directory: ./printers/docx
+              run: npm publish
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

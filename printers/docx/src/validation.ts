@@ -1,19 +1,25 @@
-import * as docx from "docx";
-import { XmlComponent } from "docx";
+import * as docx from 'docx';
+import { XmlComponent } from 'docx';
 import {
     DiagnoseErrorType,
     DiagnoseInfo,
     DiagnoseList,
-    DiagnoseSeverity
-} from "@md-to-latex/converter/dist/diagnostic";
+    DiagnoseSeverity,
+} from '@md-to-latex/converter/dist/diagnostic';
 
-function docxRootDiagnose(severity: DiagnoseSeverity, message: string): DiagnoseInfo {
+function docxRootDiagnose(
+    severity: DiagnoseSeverity,
+    message: string,
+): DiagnoseInfo {
     return {
-        pos: { start: { line: 0, column: 0, absolute: 0 }, end: { line: 0, column: 0, absolute: 0 } },
+        pos: {
+            start: { line: 0, column: 0, absolute: 0 },
+            end: { line: 0, column: 0, absolute: 0 },
+        },
         errorType: DiagnoseErrorType.OtherError,
-        filePath: ".",
+        filePath: '.',
         message,
-        severity
+        severity,
     };
 }
 
@@ -30,12 +36,19 @@ function getXmlComponentRoot(docxNode: Readonly<XmlComponent>): any[] {
     return casted.root;
 }
 
-export function validateDocxRootNode(docxNode: Readonly<XmlComponent>): DiagnoseList {
+export function validateDocxRootNode(
+    docxNode: Readonly<XmlComponent>,
+): DiagnoseList {
     let diagnostic: DiagnoseList = [];
 
     if (!(docxNode instanceof docx.Paragraph)) {
         // TODO: provide more details: which node, etc..
-        diagnostic.push(docxRootDiagnose(DiagnoseSeverity.Error, "The docx root node is not a paragraph"));
+        diagnostic.push(
+            docxRootDiagnose(
+                DiagnoseSeverity.Error,
+                'The docx root node is not a paragraph',
+            ),
+        );
     }
 
     let queue: Readonly<XmlComponent>[] = [docxNode];
@@ -49,15 +62,14 @@ export function validateDocxRootNode(docxNode: Readonly<XmlComponent>): Diagnose
                 diagnostic.push(
                     docxRootDiagnose(
                         DiagnoseSeverity.Error,
-                        "Docx Paragraph in paragraph detected"
-                    )
+                        'Docx Paragraph in paragraph detected',
+                    ),
                 );
             }
         }
 
         queue.push(...children);
     }
-
 
     return diagnostic;
 }

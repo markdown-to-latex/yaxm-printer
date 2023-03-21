@@ -89,12 +89,12 @@ export interface LatexPrinterConfigurationMarginInfo {
 }
 
 export type LatexInterpretation =
-    | "default"
-    | "monospace"
-    | "bold"
-    | "underline"
-    | "italic"
-    | "quotes";
+    | 'default'
+    | 'monospace'
+    | 'bold'
+    | 'underline'
+    | 'italic'
+    | 'quotes';
 
 export interface DocxPrinterConfiguration {
     useLinkAs: LatexInterpretation;
@@ -103,41 +103,40 @@ export interface DocxPrinterConfiguration {
     margin: LatexPrinterConfigurationMarginInfo;
 }
 
-
 export interface DocxPrinterConfigurationPartial
     extends Omit<
         Partial<DocxPrinterConfiguration>,
-        "extendAutoEscapes" | "margin"
+        'extendAutoEscapes' | 'margin'
     > {
     margin?: Partial<LatexPrinterConfigurationMarginInfo>;
 }
 
 const defaultConfig: DocxPrinterConfiguration = {
-    useCodeSpanAs: "quotes",
-    useLinkAs: "default",
+    useCodeSpanAs: 'quotes',
+    useLinkAs: 'default',
     margin: {
-        imageInnerTextSep: "3em",
-        imageBelowCaptionSkip: "-4ex",
-        imageRemovedBelowCaptionSkip: "-1.6em",
-        imageAboveCaptionSkip: "0.5em",
-        codeInnerTextSep: "3em",
-        codeBelowCaptionSkip: "-4ex",
-        codeRemovedBelowCaptionSkip: "-1.6em",
-        codeAboveCaptionSkip: "-0.5em",
-        tableBelowCaptionSkip: "0em",
-        tableAboveCaptionSkip: "0em",
-        tablePre: "2em",
-        tablePost: "2em",
-        tableRemovedPost: "0em",
-        mathAboveDisplaySkip: "-0.9em",
-        mathBelowDisplaySkip: "0pt",
-        mathAboveDisplayShortSkip: "0pt",
-        mathBelowDisplayShortSkip: "0pt"
-    }
+        imageInnerTextSep: '3em',
+        imageBelowCaptionSkip: '-4ex',
+        imageRemovedBelowCaptionSkip: '-1.6em',
+        imageAboveCaptionSkip: '0.5em',
+        codeInnerTextSep: '3em',
+        codeBelowCaptionSkip: '-4ex',
+        codeRemovedBelowCaptionSkip: '-1.6em',
+        codeAboveCaptionSkip: '-0.5em',
+        tableBelowCaptionSkip: '0em',
+        tableAboveCaptionSkip: '0em',
+        tablePre: '2em',
+        tablePost: '2em',
+        tableRemovedPost: '0em',
+        mathAboveDisplaySkip: '-0.9em',
+        mathBelowDisplaySkip: '0pt',
+        mathAboveDisplayShortSkip: '0pt',
+        mathBelowDisplayShortSkip: '0pt',
+    },
 };
 
 export function buildConfig(
-    config?: DocxPrinterConfigurationPartial
+    config?: DocxPrinterConfigurationPartial,
 ): DocxPrinterConfiguration {
     return {
         useCodeSpanAs: config?.useCodeSpanAs ?? defaultConfig.useCodeSpanAs,
@@ -190,7 +189,7 @@ export function buildConfig(
                 defaultConfig.margin.mathAboveDisplayShortSkip,
             mathBelowDisplayShortSkip:
                 config?.margin?.mathBelowDisplayShortSkip ??
-                defaultConfig.margin.mathBelowDisplayShortSkip
-        }
+                defaultConfig.margin.mathBelowDisplayShortSkip,
+        },
     };
 }

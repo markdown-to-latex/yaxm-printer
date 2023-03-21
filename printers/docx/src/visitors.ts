@@ -20,6 +20,8 @@ import * as docx from 'docx';
 import { AlignmentType, Paragraph, TextRun, UnderlineType } from 'docx';
 import {
     createTextRunExt,
+    createWordPicture,
+    createWordPictureLabel,
     formulaNodeToPicture,
     getWordListItem,
     getWordTable,
@@ -126,7 +128,31 @@ export const processingVisitors: ProcessingVisitors = {
     [RawNodeType.TextBreak]: internalUnparsableNodeType,
 
     [NodeType.Code]: internalUnparsableNodeType,
-    [ProcessedNodeType.CodeProcessed]: internalTODOParagraph,
+    [ProcessedNodeType.CodeProcessed]: async (printer, node) => {
+        const resultCaption = createWordPictureLabel(
+            node.index + 1,
+            node.label.text,
+        );
+
+        return {
+            result: [
+                new Paragraph({
+                    style: 'code',
+                    children: [
+                        new docx.TextRun({
+                            text: node.code.text,
+                            font: {
+                                name: 'Courier New',
+                            },
+                        }),
+                    ],
+                    keepNext: true,
+                }),
+                ...resultCaption.result,
+            ],
+            diagnostic: [...resultCaption.diagnostic],
+        };
+    },
     [NodeType.Heading]: async (printer, node) => {
         const diagnostic: DiagnoseList = [];
         const heading = (() => {
@@ -266,7 +292,7 @@ export const processingVisitors: ProcessingVisitors = {
     },
     [NodeType.Escape]: internalTODO,
     [NodeType.Text]: async (printer, node) => {
-        const text = node.text.replace(/ +/g, ' ')
+        const text = node.text.replace(/ +/g, ' ');
         return {
             result: [
                 new docx.TextRun({
@@ -279,94 +305,24 @@ export const processingVisitors: ProcessingVisitors = {
     [NodeType.Link]: internalTODO,
     [NodeType.Image]: internalUnparsableNodeType,
     [ProcessedNodeType.PictureProcessed]: async (printer, node) => {
-        const diagnostic: DiagnoseList = [];
-
-        // TODO(toliak): encapsulate
-        const filePath = path.resolve(node.href.text);
-        const errorPicture = () =>
-            new docx.Paragraph({
-                children: [
-                    new docx.TextRun({
-                        text: `Unknown picture ${filePath}`,
-                        color: 'red',
-                    }),
-                ],
-            });
-
-        if (!filePath) {
-            diagnostic.push(
-                nodeToDiagnose(
-                    node.href,
-                    DiagnoseSeverity.Error,
-                    DiagnoseErrorType.PrinterError,
-                    `File '${filePath}' not found`,
-                ),
-            );
-            return {
-                result: [errorPicture()],
-                diagnostic: [...diagnostic],
-            };
-        }
-
-        const imageBuffer = fs.readFileSync(filePath);
-        let width: number, height: number;
-        try {
-            const dimensions = await sizeOf(imageBuffer);
-            if (!(dimensions.height && dimensions.width)) {
-                throw new Error('just catch it, i dont want to copypast code');
-            }
-            [width, height] = [dimensions.width, dimensions.height];
-        } catch (err) {
-            diagnostic.push(
-                nodeToDiagnose(
-                    node.href,
-                    DiagnoseSeverity.Error,
-                    DiagnoseErrorType.PrinterError,
-                    `File '${filePath}' unable to get size`,
-                ),
-            );
-            return {
-                result: [errorPicture()],
-                diagnostic: [...diagnostic],
-            };
-        }
-
-        const k = width / height;
-        const cmToPx = (cm: number) => (cm / 2.54) * 96;
-        const parseOrDefault = (
-            value: string | undefined | null,
-            def: number,
-        ) => {
-            if (!value) {
-                return def;
-            }
-            return cmToPx(parseInt(value));
-        };
+        const resultPicture = await createWordPicture(node);
+        const resultCaption = createWordPictureLabel(
+            node.index + 1,
+            node.label.text,
+        );
 
         return {
             result: [
                 new Paragraph({
-                    children: [
-                        new docx.ImageRun({
-                            data: imageBuffer,
-                            transformation: {
-                                width: parseOrDefault(node.width, width),
-                                height: parseOrDefault(node.height, height),
-                            },
-                        }),
-                    ],
+                    children: [...resultPicture.result],
                     keepNext: true,
                 }),
-                new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                        new docx.TextRun({
-                            text: `Рисунок ${node.index} – ${node.label.text}`,
-                        }),
-                    ],
-                }),
+                ...resultCaption.result,
             ],
-            diagnostic: [...diagnostic],
+            diagnostic: [
+                ...resultPicture.diagnostic,
+                ...resultCaption.diagnostic,
+            ],
         };
     },
     [NodeType.Strong]: async (printer, node) => {
@@ -478,7 +434,7 @@ export const processingVisitors: ProcessingVisitors = {
     },
 
     [NodeType.NonBreakingSpace]: async (_printer, node) => ({
-        result: [new docx.TextRun(" ")],
+        result: [new docx.TextRun(' ')],
         diagnostic: [
             nodeToDiagnose(
                 node,
@@ -612,9 +568,24 @@ export const processingVisitors: ProcessingVisitors = {
         // TODO(toliak): Check that all children are paragraphs
         const result = await printer.processNodeList(printer, node.children);
 
+        const diagnostic: DiagnoseList = [];
+        // TODO(toliak): Encapsulate
+        for (const resultElement of result.result) {
+            if (!(resultElement instanceof docx.Paragraph)) {
+                diagnostic.push(
+                    nodeToDiagnose(
+                        node,
+                        DiagnoseSeverity.Error,
+                        DiagnoseErrorType.PrinterError,
+                        'Detected not paragraph DOCX node in AllReferences',
+                    ),
+                );
+            }
+        }
+
         return {
             result: [...result.result],
-            diagnostic: [...result.diagnostic],
+            diagnostic: [...result.diagnostic, ...diagnostic],
         };
     },
 
@@ -631,7 +602,7 @@ export const processingVisitors: ProcessingVisitors = {
             result: [
                 new docx.Paragraph({
                     children: [
-                        new docx.TextRun(`${node.index}.\xA0`),
+                        new docx.TextRun(`${node.index + 1}.\xA0`),
                         ...result.result,
                     ],
                 }),

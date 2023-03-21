@@ -3,22 +3,27 @@ import {
     ListNode,
     NodeText,
 } from '@md-to-latex/converter/dist/ast/node';
-import { DiagnoseList } from '@md-to-latex/converter/dist/diagnostic';
-import * as docx from 'docx';
 import {
-    AlignmentType,
-    Paragraph,
-    TextRun,
-    VerticalAlign,
-    WidthType,
-} from 'docx';
+    DiagnoseErrorType,
+    DiagnoseList,
+    DiagnoseSeverity,
+    nodeToDiagnose,
+} from '@md-to-latex/converter/dist/diagnostic';
+import * as docx from 'docx';
+import { AlignmentType, Paragraph, VerticalAlign, WidthType } from 'docx';
 import { default as texsvg } from 'texsvg';
 import { YAMLException } from 'js-yaml';
 
 // @ts-ignore
 import * as svg2png from 'convert-svg-to-png';
-import { FormulaProcessedNode } from '@md-to-latex/converter/dist/macro/node';
+import {
+    FormulaProcessedNode,
+    PictureProcessedNode,
+} from '@md-to-latex/converter/dist/macro/node';
 import { DocxPrinter } from './index';
+import path from 'path';
+import fs from 'fs';
+import sizeOf from 'image-size';
 
 export interface PrinterFunctionResult {
     result: docx.XmlComponent[];
@@ -241,6 +246,145 @@ export function getWordTable(info: WordTableInfo): PrinterFunctionResult {
                     size: 100,
                 },
                 rows: [info.header, ...info.content],
+            }),
+        ],
+        diagnostic: [],
+    };
+}
+
+export async function createWordPicture(
+    node: PictureProcessedNode,
+): Promise<PrinterFunctionResult> {
+    const diagnostic: DiagnoseList = [];
+
+    const filePath = path.resolve(node.href.text);
+    const errorPicture = () =>
+        new docx.Paragraph({
+            children: [
+                new docx.TextRun({
+                    text: `Unknown picture ${filePath}`,
+                    color: 'red',
+                }),
+            ],
+        });
+
+    if (!filePath) {
+        diagnostic.push(
+            nodeToDiagnose(
+                node.href,
+                DiagnoseSeverity.Error,
+                DiagnoseErrorType.PrinterError,
+                `File '${filePath}' not found`,
+            ),
+        );
+        return {
+            result: [errorPicture()],
+            diagnostic: [...diagnostic],
+        };
+    }
+
+    const imageBuffer = fs.readFileSync(filePath);
+    let width: number, height: number;
+    try {
+        const dimensions = await sizeOf(imageBuffer);
+        if (!(dimensions.height && dimensions.width)) {
+            throw new Error('just catch it, i dont want to copypast code');
+        }
+        [width, height] = [dimensions.width, dimensions.height];
+    } catch (err) {
+        diagnostic.push(
+            nodeToDiagnose(
+                node.href,
+                DiagnoseSeverity.Error,
+                DiagnoseErrorType.PrinterError,
+                `File '${filePath}' unable to get size`,
+            ),
+        );
+        return {
+            result: [errorPicture()],
+            diagnostic: [...diagnostic],
+        };
+    }
+
+    const k = width / height;
+    const cmToPx = (cm: number) => (cm / 2.54) * 96;
+    const parseOrDefault = (value: string | undefined | null, def: number) => {
+        if (!value) {
+            return def;
+        }
+        return cmToPx(parseInt(value));
+    };
+
+    if (node.width && !node.width.endsWith('cm')) {
+        diagnostic.push(
+            nodeToDiagnose(
+                node,
+                DiagnoseSeverity.Warning,
+                DiagnoseErrorType.PrinterError,
+                "Only 'cm' supported (Width)",
+            ),
+        );
+    }
+    if (node.height && !node.height.endsWith('cm')) {
+        diagnostic.push(
+            nodeToDiagnose(
+                node,
+                DiagnoseSeverity.Warning,
+                DiagnoseErrorType.PrinterError,
+                "Only 'cm' supported (Height)",
+            ),
+        );
+    }
+
+    const size: { width: number; height: number } = (() => {
+        if (node.width && node.height) {
+            return {
+                width: cmToPx(parseInt(node.width)),
+                height: cmToPx(parseInt(node.height)),
+            };
+        }
+        if (node.width) {
+            return {
+                width: cmToPx(parseInt(node.width)),
+                height: cmToPx(parseInt(node.width) / k),
+            };
+        }
+        if (node.height) {
+            return {
+                width: cmToPx(parseInt(node.height) * k),
+                height: cmToPx(parseInt(node.height)),
+            };
+        }
+        return {
+            width: cmToPx(width),
+            height: cmToPx(height),
+        };
+    })();
+
+    return {
+        result: [
+            new docx.ImageRun({
+                data: imageBuffer,
+                transformation: { ...size },
+            }),
+        ],
+        diagnostic: diagnostic,
+    };
+}
+
+export function createWordPictureLabel(
+    index: number,
+    text: string,
+): PrinterFunctionResult {
+    return {
+        result: [
+            new Paragraph({
+                style: 'picture-caption',
+                children: [
+                    new docx.TextRun({
+                        text: `Рисунок ${index} – ${text}`,
+                    }),
+                ],
             }),
         ],
         diagnostic: [],

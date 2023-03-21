@@ -1,5 +1,5 @@
 import * as docx from 'docx';
-import { AlignmentType } from 'docx';
+import { AlignmentType, BorderStyle } from 'docx';
 
 function fontSizeToDocxFontSize(size: number): number {
     return size * 2;
@@ -71,12 +71,32 @@ export function getDocumentGlobalStyles(): docx.IStylesOptions {
         },
         paragraphStyles: [
             {
+                id: 'code',
+                name: 'code',
+                paragraph: {
+                    spacing: {
+                        before: docx.convertMillimetersToTwip(
+                            defaultTableSpacingMm,
+                        ),
+                    },
+                    keepLines: true,
+                    keepNext: true,
+                    indent: {
+                        firstLine: 0,
+                    },
+                },
+                run: {
+                    size: fontSizeToDocxFontSize(12),
+                    font: 'Fira Code',
+                },
+            },
+            {
                 id: 'table-caption',
                 name: 'table-caption',
                 run: {},
                 paragraph: {
                     spacing: {
-                        after: docx.convertMillimetersToTwip(
+                        before: docx.convertMillimetersToTwip(
                             defaultPictureSpacingMm,
                         ),
                     },
@@ -103,6 +123,7 @@ export function getDocumentGlobalStyles(): docx.IStylesOptions {
                 id: 'table-cell',
                 name: 'table-cell',
                 paragraph: {
+                    alignment: AlignmentType.CENTER,
                     indent: {
                         firstLine: 0,
                     },

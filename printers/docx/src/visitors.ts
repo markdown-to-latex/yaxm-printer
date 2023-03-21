@@ -17,7 +17,13 @@ import {
     nodeToDiagnose,
 } from '@md-to-latex/converter/dist/diagnostic';
 import * as docx from 'docx';
-import { AlignmentType, Paragraph, TextRun, UnderlineType } from 'docx';
+import {
+    BorderStyle,
+    Paragraph,
+    TextRun,
+    UnderlineType,
+    VerticalAlign,
+} from 'docx';
 import {
     createTextRunExt,
     createWordPicture,
@@ -29,9 +35,6 @@ import {
     printKeyNode,
     printLazyNumberNode,
 } from './printer';
-import * as fs from 'fs';
-import path from 'path';
-import sizeOf from 'image-size';
 
 // Editing
 
@@ -141,11 +144,22 @@ export const processingVisitors: ProcessingVisitors = {
                     children: [
                         new docx.TextRun({
                             text: node.code.text,
-                            font: {
-                                name: 'Courier New',
-                            },
                         }),
                     ],
+                    border: {
+                        top: {
+                            style: BorderStyle.SINGLE,
+                        },
+                        right: {
+                            style: BorderStyle.SINGLE,
+                        },
+                        bottom: {
+                            style: BorderStyle.SINGLE,
+                        },
+                        left: {
+                            style: BorderStyle.SINGLE,
+                        },
+                    },
                     keepNext: true,
                 }),
                 ...resultCaption.result,
@@ -462,6 +476,7 @@ export const processingVisitors: ProcessingVisitors = {
                             style: 'table-cell',
                         }),
                     ],
+                    verticalAlign: VerticalAlign.CENTER,
                 }),
             ],
             diagnostic: [...result.diagnostic],

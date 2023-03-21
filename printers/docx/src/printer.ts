@@ -249,6 +249,7 @@ export function getWordTable(info: WordTableInfo): PrinterFunctionResult {
                     size: 100,
                 },
                 rows: [info.header, ...info.content],
+                alignment: AlignmentType.CENTER,
                 style: 'table',
             }),
         ],

@@ -152,6 +152,7 @@ export async function printFormulaProcessedNode(
                                     await formulaNodeToPicture(node.text),
                                 ],
                                 alignment: AlignmentType.CENTER,
+                                style: 'formula-table-cell',
                             }),
                         ],
                         verticalAlign: VerticalAlign.CENTER,
@@ -161,6 +162,7 @@ export async function printFormulaProcessedNode(
                             new docx.Paragraph({
                                 text: `(${node.index + 1})`,
                                 alignment: AlignmentType.RIGHT,
+                                style: 'formula-table-cell-number',
                             }),
                         ],
                         verticalAlign: VerticalAlign.CENTER,
@@ -239,6 +241,7 @@ export function getWordTable(info: WordTableInfo): PrinterFunctionResult {
                     }),
                     ...info.tableTitle,
                 ],
+                style: 'table-caption',
             }),
             new docx.Table({
                 width: {
@@ -246,6 +249,7 @@ export function getWordTable(info: WordTableInfo): PrinterFunctionResult {
                     size: 100,
                 },
                 rows: [info.header, ...info.content],
+                style: 'table',
             }),
         ],
         diagnostic: [],

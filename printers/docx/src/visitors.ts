@@ -316,6 +316,7 @@ export const processingVisitors: ProcessingVisitors = {
                 new Paragraph({
                     children: [...resultPicture.result],
                     keepNext: true,
+                    style: 'picture',
                 }),
                 ...resultCaption.result,
             ],
@@ -458,6 +459,7 @@ export const processingVisitors: ProcessingVisitors = {
                     children: [
                         new Paragraph({
                             children: result.result,
+                            style: 'table-cell',
                         }),
                     ],
                 }),
@@ -544,7 +546,7 @@ export const processingVisitors: ProcessingVisitors = {
             result: [
                 new docx.Paragraph({
                     children: [await formulaNodeToPicture(node.text)],
-                    alignment: AlignmentType.CENTER,
+                    style: 'formula-picture',
                 }),
             ],
             diagnostic: [],

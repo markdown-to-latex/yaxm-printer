@@ -31,6 +31,7 @@ import {
     formulaNodeToPicture,
     getWordListItem,
     getWordTable,
+    prepareRawText,
     printFormulaProcessedNode,
     printKeyNode,
     printLazyNumberNode,
@@ -141,11 +142,13 @@ export const processingVisitors: ProcessingVisitors = {
             result: [
                 new Paragraph({
                     style: 'code',
-                    children: [
-                        new docx.TextRun({
-                            text: node.code.text,
-                        }),
-                    ],
+                    children: node.code.text.split('\n').map(
+                        (line, i) =>
+                            new docx.TextRun({
+                                text: line,
+                                break: i != 0 ? 1 : 0, // break before
+                            }),
+                    ),
                     border: {
                         top: {
                             style: BorderStyle.SINGLE,
@@ -306,7 +309,7 @@ export const processingVisitors: ProcessingVisitors = {
     },
     [NodeType.Escape]: internalTODO,
     [NodeType.Text]: async (printer, node) => {
-        const text = node.text.replace(/ +/g, ' ');
+        const text = prepareRawText(node.text);
         return {
             result: [
                 new docx.TextRun({
@@ -397,10 +400,11 @@ export const processingVisitors: ProcessingVisitors = {
         };
     },
     [NodeType.CodeSpan]: async (printer, node) => {
+        const text = prepareRawText(node.text);
         return {
             result: [
                 new docx.TextRun({
-                    text: `«${node.text}»`,
+                    text: `«${text}»`,
                 }),
             ],
             diagnostic: [],

@@ -30,6 +30,13 @@ export interface PrinterFunctionResult {
     diagnostic: DiagnoseList;
 }
 
+export function prepareRawText(text: string): string {
+    text = text.replace(/ +/g, ' ');
+    text = text.replace(/ --/g, ' –');
+
+    return text;
+}
+
 function getOrCreateWordListRef(
     printer: DocxPrinter,
     node: ListNode,

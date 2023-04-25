@@ -11,7 +11,13 @@ import { ListNode, Node, RawNode } from '@md-to-latex/converter/dist/ast/node';
 import * as docx from 'docx';
 import { XmlComponent } from 'docx';
 import { validateDocxRootNode } from './validation';
-import { getDocumentGlobalStyles } from './styles';
+import {
+    getDocumentGlobalStyles,
+    getNumberingHeading,
+    getOrderedNumberingLevels,
+    getUnorderedNumberingLevels,
+    INumberingOptionsConfig,
+} from './styles';
 
 const processNode: DocxPrinterVisitor<NodeProcessed | RawNode | Node> =
     function (printer, node) {
@@ -83,112 +89,18 @@ export async function printerResultToBuffer(
         styles: getDocumentGlobalStyles(),
         numbering: {
             config: [
-                ...printer.wordListRefStore.map<
-                    docx.INumberingOptions['config'][0]
-                >(n => ({
-                    // TODO: fully prepare the list styles for ordered and unordered list
-                    reference: n.ref,
-                    levels: [
-                        {
-                            level: 0,
-                            format: docx.LevelFormat.RUSSIAN_UPPER,
-                            text: '%1)',
-                            alignment: docx.AlignmentType.START,
-                            style: {
-                                paragraph: {
-                                    leftTabStop: docx.convertMillimetersToTwip(
-                                        15 + 10,
-                                    ),
-                                    indent: {
-                                        firstLine:
-                                            docx.convertMillimetersToTwip(15),
-                                    },
-                                },
-                            },
-                        },
-                        {
-                            level: 1,
-                            format: docx.LevelFormat.DECIMAL,
-                            text: '%2)',
-                            alignment: docx.AlignmentType.START,
-                            style: {
-                                paragraph: {
-                                    leftTabStop: docx.convertMillimetersToTwip(
-                                        15 + 15 + 10,
-                                    ),
-                                    indent: {
-                                        firstLine:
-                                            docx.convertMillimetersToTwip(
-                                                15 + 15,
-                                            ),
-                                    },
-                                },
-                            },
-                        },
-                        {
-                            level: 2,
-                            format: docx.LevelFormat.UPPER_ROMAN,
-                            text: '%3)',
-                            alignment: docx.AlignmentType.START,
-                            style: {
-                                paragraph: {
-                                    leftTabStop: docx.convertMillimetersToTwip(
-                                        15 + 15 + 15 + 10,
-                                    ),
-                                    indent: {
-                                        firstLine:
-                                            docx.convertMillimetersToTwip(
-                                                15 + 15 + 15,
-                                            ),
-                                    },
-                                },
-                            },
-                        },
-                    ],
-                })),
-                {
-                    reference: 'heading-ref',
-                    levels: [
-                        {
-                            level: 0,
-                            format: docx.LevelFormat.DECIMAL,
-                            text: '%1',
-                            alignment: docx.AlignmentType.START,
-                            style: {
-                                paragraph: {
-                                    leftTabStop:
-                                        docx.convertMillimetersToTwip(10),
-                                },
-                            },
-                        },
-                        {
-                            level: 1,
-                            format: docx.LevelFormat.DECIMAL,
-                            text: '%1.%2',
-                            alignment: docx.AlignmentType.START,
-                            style: {
-                                paragraph: {
-                                    leftTabStop: docx.convertMillimetersToTwip(
-                                        20 + 15,
-                                    ),
-                                },
-                            },
-                        },
-                        {
-                            level: 2,
-                            format: docx.LevelFormat.DECIMAL,
-                            text: '%1.%2.%3',
-                            alignment: docx.AlignmentType.START,
-                            style: {
-                                paragraph: {
-                                    leftTabStop: docx.convertMillimetersToTwip(
-                                        20 + 15,
-                                    ),
-                                },
-                            },
-                        },
-                    ],
-                },
+                ...printer.wordListRefStore.map<INumberingOptionsConfig>(n =>
+                    n.isOrdered
+                        ? {
+                              reference: n.ref,
+                              levels: getOrderedNumberingLevels(),
+                          }
+                        : {
+                              reference: n.ref,
+                              levels: getUnorderedNumberingLevels(),
+                          },
+                ),
+                getNumberingHeading(),
             ],
         },
         features: {

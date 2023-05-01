@@ -386,7 +386,7 @@ export async function createWordPicture(
 
 export function createWordPictureLabel(
     index: number,
-    text: string,
+    text: docx.XmlComponent[],
 ): PrinterFunctionResult {
     return {
         result: [
@@ -394,8 +394,9 @@ export function createWordPictureLabel(
                 style: 'picture-caption',
                 children: [
                     new docx.TextRun({
-                        text: `Рисунок ${index} – ${text}`,
+                        text: `Рисунок ${index} – `,
                     }),
+                    ...text,
                 ],
             }),
         ],

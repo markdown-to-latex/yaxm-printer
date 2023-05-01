@@ -133,9 +133,11 @@ export const processingVisitors: ProcessingVisitors = {
 
     [NodeType.Code]: internalUnparsableNodeType,
     [ProcessedNodeType.CodeProcessed]: async (printer, node) => {
+        const resultName = await printer.processNodeList(printer, node.name);
+
         const resultCaption = createWordPictureLabel(
             node.index + 1,
-            node.label.text,
+            resultName.result,
         );
 
         return {
@@ -167,7 +169,7 @@ export const processingVisitors: ProcessingVisitors = {
                 }),
                 ...resultCaption.result,
             ],
-            diagnostic: [...resultCaption.diagnostic],
+            diagnostic: [...resultName.diagnostic, ...resultCaption.diagnostic],
         };
     },
     [NodeType.Heading]: async (printer, node) => {
@@ -322,10 +324,12 @@ export const processingVisitors: ProcessingVisitors = {
     [NodeType.Link]: internalTODO,
     [NodeType.Image]: internalUnparsableNodeType,
     [ProcessedNodeType.PictureProcessed]: async (printer, node) => {
+        const resultName = await printer.processNodeList(printer, node.name);
+
         const resultPicture = await createWordPicture(node);
         const resultCaption = createWordPictureLabel(
             node.index + 1,
-            node.label.text,
+            resultName.result,
         );
 
         return {
@@ -338,6 +342,7 @@ export const processingVisitors: ProcessingVisitors = {
                 ...resultCaption.result,
             ],
             diagnostic: [
+                ...resultName.diagnostic,
                 ...resultPicture.diagnostic,
                 ...resultCaption.diagnostic,
             ],

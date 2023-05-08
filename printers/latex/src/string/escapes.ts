@@ -35,18 +35,25 @@ export interface LatexPrinterConfigurationEscapeData {
  */
 export const defaultEscapes: LatexPrinterConfigurationEscapeData[] = [
     {
-        chars: ['%', '_', '#', '&'],
+        chars: ['\\\\'],
         inText: true,
+        inCodeSpan: false,
+        inLink: false,
+        replacer: '\\textbackslash{}',
+    },
+    {
+        chars: ['\\\\'],
+        inText: false,
         inCodeSpan: true,
         inLink: true,
         replacer: '\\$1',
     },
     {
-        chars: ['\\$'],
-        inText: false,
+        chars: ['%', '_', '#', '&', '\\$'],
+        inText: true,
         inCodeSpan: true,
         inLink: true,
-        replacer: '\\$1',
+        replacer: '\\$1{}',
     },
     {
         chars: ['{', '}'],
@@ -60,14 +67,14 @@ export const defaultEscapes: LatexPrinterConfigurationEscapeData[] = [
         inText: false,
         inCodeSpan: true,
         inLink: false,
-        replacer: '\\textasciitilde',
+        replacer: '\\textasciitilde{}',
     },
     {
         chars: ['\\^'],
         inText: false,
         inCodeSpan: true,
         inLink: false,
-        replacer: '\\textasciicircum',
+        replacer: '\\textasciicircum{}',
     },
     {
         chars: ['"'],

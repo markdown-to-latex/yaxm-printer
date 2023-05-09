@@ -541,9 +541,8 @@ export const processingVisitors: ProcessingVisitors = {
     [NodeType.FormulaSpan]: async (printer, node) => {
         return {
             result: [
-                createTextRunExt({
-                    children: [await formulaNodeToPicture(node)],
-                    position: -6,
+                new docx.Math({
+                    children: [new docx.TextRun(node.text)],
                 }),
             ],
             diagnostic: [],
@@ -569,7 +568,15 @@ export const processingVisitors: ProcessingVisitors = {
         return {
             result: [
                 new docx.Paragraph({
-                    children: [await formulaNodeToPicture(node.text)],
+                    children: [
+                        new docx.Math({
+                            children: [
+                                new docx.TextRun(
+                                    node.text.text.replace('\n', ' '),
+                                ),
+                            ],
+                        }),
+                    ],
                     style: 'formula-picture',
                 }),
             ],

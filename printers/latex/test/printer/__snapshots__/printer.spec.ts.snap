@@ -97,7 +97,7 @@ See application В.
     \\\\section{\\\\uppercase{Приложение Б}}
 
     \\\\sectionbutitiscentered{Large scheme}
-    
+
     \\\\begin{center}
     \\\\includegraphics[height=13.8cm]{./assets/img/circuit.png}
     \\\\end{center}
@@ -277,7 +277,7 @@ Static number & 50\\\\\\\\ \\\\hline
 Random number &  \\\\showcaserandomnumber \\\\\\\\ \\\\hline
 
 \\\\end{longtable}
-\\\\fontsize{\\\\defaultfontsize}{\\\\defaultfontsize}\\\\selectfont\\\\setstretch{1.5}
+\\\\fontsize{\\\\defaultfontsize}{\\\\defaultfontsize}\\\\selectfont\\\\setstretch{\\\\getstretch}
 "
 `;
 
@@ -377,7 +377,7 @@ exports[`latex picture after table (#52) Picture right after the table 2`] = `
 Static number & 50\\\\\\\\ \\\\hline
 
 \\\\end{longtable}
-\\\\fontsize{\\\\defaultfontsize}{\\\\defaultfontsize}\\\\selectfont\\\\setstretch{1.5}
+\\\\fontsize{\\\\defaultfontsize}{\\\\defaultfontsize}\\\\selectfont\\\\setstretch{\\\\getstretch}
 
 \\\\setlength{\\\\intextsep}{3em}
 \\\\setlength{\\\\belowcaptionskip}{-4ex}
@@ -457,7 +457,7 @@ exports[`latex picture after table (#52) Table + text + picture 2`] = `
 Static number & 50\\\\\\\\ \\\\hline
 
 \\\\end{longtable}
-\\\\fontsize{\\\\defaultfontsize}{\\\\defaultfontsize}\\\\selectfont\\\\setstretch{1.5}
+\\\\fontsize{\\\\defaultfontsize}{\\\\defaultfontsize}\\\\selectfont\\\\setstretch{\\\\getstretch}
 
 Sample text line
 
@@ -527,7 +527,7 @@ exports[`simple md to latex docs printer Header + Formula 1`] = `
 \\\\begin{align*}
 \\\\displaystyle
     a = b + c
-\\\\end{align*}    
+\\\\end{align*}
 "
 `;
 
@@ -658,7 +658,7 @@ exports[`simple md to latex docs printer ListItem + MathLatex must have 2 line b
 \\\\begin{align*}
 \\\\displaystyle
 Some text here
-\\\\end{align*}    
+\\\\end{align*}
 "
 `;
 
@@ -723,7 +723,7 @@ exports[`simple md to latex docs printer Table 1`] = `
 t & r & e & z\\\\\\\\ \\\\hline
 
 \\\\end{longtable}
-\\\\fontsize{\\\\defaultfontsize}{\\\\defaultfontsize}\\\\selectfont\\\\setstretch{1.5}
+\\\\fontsize{\\\\defaultfontsize}{\\\\defaultfontsize}\\\\selectfont\\\\setstretch{\\\\getstretch}
 "
 `;
 

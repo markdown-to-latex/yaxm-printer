@@ -270,7 +270,7 @@ ${
 
 ${info.content}
 \\end{longtable}
-\\fontsize{\\defaultfontsize}{\\defaultfontsize}\\selectfont\\setstretch{1.5}
+\\fontsize{\\defaultfontsize}{\\defaultfontsize}\\selectfont\\setstretch{\\getstretch}
 
 `;
 }

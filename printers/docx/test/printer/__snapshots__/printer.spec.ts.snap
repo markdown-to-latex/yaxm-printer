@@ -1,0 +1,249 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`simple md to latex docs printer Header + Image + Code + Image 1`] = `
+Array [
+  Object {
+    "errorType": 2,
+    "filePath": "[PATH]",
+    "message": "Unused picture label img-1",
+    "pos": Object {
+      "end": Object {
+        "absolute": 65,
+        "column": 55,
+        "line": 4,
+      },
+      "start": Object {
+        "absolute": 11,
+        "column": 1,
+        "line": 4,
+      },
+    },
+    "severity": "WARNING",
+  },
+  Object {
+    "errorType": 2,
+    "filePath": "[PATH]",
+    "message": "Unused picture label code-1",
+    "pos": Object {
+      "end": Object {
+        "absolute": 144,
+        "column": 4,
+        "line": 9,
+      },
+      "start": Object {
+        "absolute": 67,
+        "column": 1,
+        "line": 6,
+      },
+    },
+    "severity": "WARNING",
+  },
+  Object {
+    "errorType": 2,
+    "filePath": "[PATH]",
+    "message": "Unused picture label img-2",
+    "pos": Object {
+      "end": Object {
+        "absolute": 202,
+        "column": 57,
+        "line": 11,
+      },
+      "start": Object {
+        "absolute": 146,
+        "column": 1,
+        "line": 11,
+      },
+    },
+    "severity": "WARNING",
+  },
+  Object {
+    "errorType": 4,
+    "filePath": "[PATH]",
+    "message": "Unable to print node with type 'Heading' (TODO)",
+    "pos": Object {
+      "end": Object {
+        "absolute": 9,
+        "column": 9,
+        "line": 2,
+      },
+      "start": Object {
+        "absolute": 1,
+        "column": 1,
+        "line": 2,
+      },
+    },
+    "severity": "WARNING",
+  },
+  Object {
+    "errorType": 4,
+    "filePath": "[PATH]",
+    "message": "Unable to print node with type 'PictureProcessed' (TODO)",
+    "pos": Object {
+      "end": Object {
+        "absolute": 65,
+        "column": 55,
+        "line": 4,
+      },
+      "start": Object {
+        "absolute": 11,
+        "column": 1,
+        "line": 4,
+      },
+    },
+    "severity": "WARNING",
+  },
+  Object {
+    "errorType": 4,
+    "filePath": "[PATH]",
+    "message": "Unable to print node with type 'CodeProcessed' (TODO)",
+    "pos": Object {
+      "end": Object {
+        "absolute": 144,
+        "column": 4,
+        "line": 9,
+      },
+      "start": Object {
+        "absolute": 67,
+        "column": 1,
+        "line": 6,
+      },
+    },
+    "severity": "WARNING",
+  },
+  Object {
+    "errorType": 4,
+    "filePath": "[PATH]",
+    "message": "Unable to print node with type 'PictureProcessed' (TODO)",
+    "pos": Object {
+      "end": Object {
+        "absolute": 202,
+        "column": 57,
+        "line": 11,
+      },
+      "start": Object {
+        "absolute": 146,
+        "column": 1,
+        "line": 11,
+      },
+    },
+    "severity": "WARNING",
+  },
+]
+`;
+
+exports[`simple md to latex docs printer Header + Image + Code + Image 2`] = `
+Array [
+  we {
+    "properties": pe {
+      "root": Array [],
+      "rootKey": "w:rPr",
+    },
+    "root": Array [
+      pe {
+        "root": Array [],
+        "rootKey": "w:rPr",
+      },
+      fe {
+        "root": Array [
+          V {
+            "root": Object {
+              "space": "preserve",
+            },
+            "rootKey": "_attr",
+            "xmlKeys": Object {
+              "space": "xml:space",
+            },
+          },
+          "[TODO 'Heading']",
+        ],
+        "rootKey": "w:t",
+      },
+    ],
+    "rootKey": "w:r",
+  },
+  we {
+    "properties": pe {
+      "root": Array [],
+      "rootKey": "w:rPr",
+    },
+    "root": Array [
+      pe {
+        "root": Array [],
+        "rootKey": "w:rPr",
+      },
+      fe {
+        "root": Array [
+          V {
+            "root": Object {
+              "space": "preserve",
+            },
+            "rootKey": "_attr",
+            "xmlKeys": Object {
+              "space": "xml:space",
+            },
+          },
+          "[TODO 'PictureProcessed']",
+        ],
+        "rootKey": "w:t",
+      },
+    ],
+    "rootKey": "w:r",
+  },
+  we {
+    "properties": pe {
+      "root": Array [],
+      "rootKey": "w:rPr",
+    },
+    "root": Array [
+      pe {
+        "root": Array [],
+        "rootKey": "w:rPr",
+      },
+      fe {
+        "root": Array [
+          V {
+            "root": Object {
+              "space": "preserve",
+            },
+            "rootKey": "_attr",
+            "xmlKeys": Object {
+              "space": "xml:space",
+            },
+          },
+          "[TODO 'CodeProcessed']",
+        ],
+        "rootKey": "w:t",
+      },
+    ],
+    "rootKey": "w:r",
+  },
+  we {
+    "properties": pe {
+      "root": Array [],
+      "rootKey": "w:rPr",
+    },
+    "root": Array [
+      pe {
+        "root": Array [],
+        "rootKey": "w:rPr",
+      },
+      fe {
+        "root": Array [
+          V {
+            "root": Object {
+              "space": "preserve",
+            },
+            "rootKey": "_attr",
+            "xmlKeys": Object {
+              "space": "xml:space",
+            },
+          },
+          "[TODO 'PictureProcessed']",
+        ],
+        "rootKey": "w:t",
+      },
+    ],
+    "rootKey": "w:r",
+  },
+]
+`;

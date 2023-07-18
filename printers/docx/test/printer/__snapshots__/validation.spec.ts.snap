@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`validation test paragraph must be the root node 1`] = `
+Array [
+  Object {
+    "errorType": 7,
+    "filePath": ".",
+    "message": "The docx root node is not a paragraph",
+    "pos": Object {
+      "end": Object {
+        "absolute": 0,
+        "column": 0,
+        "line": 0,
+      },
+      "start": Object {
+        "absolute": 0,
+        "column": 0,
+        "line": 0,
+      },
+    },
+    "severity": "ERROR",
+  },
+]
+`;
+
+exports[`validation test paragraph must not contain paragraphs 1`] = `
+Array [
+  Object {
+    "errorType": 7,
+    "filePath": ".",
+    "message": "Docx Paragraph in paragraph detected",
+    "pos": Object {
+      "end": Object {
+        "absolute": 0,
+        "column": 0,
+        "line": 0,
+      },
+      "start": Object {
+        "absolute": 0,
+        "column": 0,
+        "line": 0,
+      },
+    },
+    "severity": "ERROR",
+  },
+]
+`;

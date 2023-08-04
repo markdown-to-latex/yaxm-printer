@@ -367,6 +367,13 @@ Discriminant Analysis, is related to Jenks optimization method.
         expect(result.result).toMatchSnapshot();
     });
 
+    test('CodeSpan dereplacement underscore', () => {
+        const result = processingChain('`sample_text`');
+
+        expect(result.diagnostic).toHaveLength(0);
+        expect(result.result).toMatchSnapshot();
+    });
+
     test('Inline latex math dereplacement', () => {
         const result = processingChain(`
 $\`a > b < c\`$

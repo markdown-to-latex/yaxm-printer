@@ -426,7 +426,7 @@ export function getLatexRotatedPicture(
     \\section{\\uppercase{Приложение ${data.index}}}
 
     \\sectionbutitiscentered{${data.title}}
-    
+
     \\begin{center}
     \\includegraphics[height=13.8cm]{${data.filepath}}
     \\end{center}

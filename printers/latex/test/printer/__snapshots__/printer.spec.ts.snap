@@ -140,21 +140,21 @@ See application А.
 `;
 
 exports[`CodeSpan Monospace 1`] = `
-"CodeSpan \\\\texttt{text \\\\& text}.
+"CodeSpan \\\\texttt{text \\\\&{} text}.
 "
 `;
 
 exports[`CodeSpan Quote 1`] = `
-"CodeSpan <<text \\\\& text>>.
+"CodeSpan <<text \\\\&{} text>>.
 "
 `;
 
 exports[`Escapes Default escapes 1`] = `
 "\\\\section{\\\\uppercase{Header}}
 
-https://testing.url/com?some=thing\\\\&wtf\\\\#xdxdxd
+https://testing.url/com?some=thing\\\\&{}wtf\\\\#{}xdxdxd
 
-The \\"{}definition\\"{} increased by 1\\\\% (more text more text).
+The \\"{}definition\\"{} increased by 1\\\\%{} (more text more text).
 "
 `;
 
@@ -225,7 +225,12 @@ Code from reference 1 describes image from reference 2.
 `;
 
 exports[`complex latex CodeSpan dereplacement 1`] = `
-"<<\\"{}sample \\\\& text\\"{}>>
+"<<\\"{}sample \\\\&{} text\\"{}>>
+"
+`;
+
+exports[`complex latex CodeSpan dereplacement underscore 1`] = `
+"<<sample\\\\_{}text>>
 "
 `;
 
@@ -308,7 +313,7 @@ exports[`complex latex Text with escapes ("<" should be correct also) 1`] = `
 `;
 
 exports[`complex latex Text with percents 1`] = `
-"Text with 10\\\\% number.
+"Text with 10\\\\%{} number.
 "
 `;
 
@@ -690,7 +695,7 @@ exports[`simple md to latex docs printer Subheader + List + Code Span 1`] = `
 
 \\\\hspace{2.5cm}-\\\\,700
 
-\\\\hspace{1.25cm}2)\\\\,<<Code\\\\_span>>
+\\\\hspace{1.25cm}2)\\\\,<<Code\\\\_{}span>>
 
 \\\\hspace{0cm}в)\\\\,Z
 "
@@ -733,17 +738,17 @@ exports[`simple md to latex docs printer bold and italic 1`] = `
 `;
 
 exports[`url variants Bold url 1`] = `
-"\\\\textbf{https://example.com/index\\\\_page.html?asd=asdasd\\\\&gege=gegege\\\\#header}
+"\\\\textbf{https://example.com/index\\\\_{}page.html?asd=asdasd\\\\&{}gege=gegege\\\\#{}header}
 "
 `;
 
 exports[`url variants Default url 1`] = `
-"https://example.com/index\\\\_page.html?asd=asdasd\\\\&gege=gegege\\\\#header
+"https://example.com/index\\\\_{}page.html?asd=asdasd\\\\&{}gege=gegege\\\\#{}header
 "
 `;
 
 exports[`url variants Italic url 1`] = `
-"\\\\textit{https://example.com/index\\\\_page.html?asd=asdasd\\\\&gege=gegege\\\\#header}
+"\\\\textit{https://example.com/index\\\\_{}page.html?asd=asdasd\\\\&{}gege=gegege\\\\#{}header}
 "
 `;
 
@@ -753,6 +758,6 @@ exports[`url variants No escape & code url 1`] = `
 `;
 
 exports[`url variants Underlined url 1`] = `
-"\\\\underline{https://example.com/index\\\\_page.html?asd=asdasd\\\\&gege=gegege\\\\#header}
+"\\\\underline{https://example.com/index\\\\_{}page.html?asd=asdasd\\\\&{}gege=gegege\\\\#{}header}
 "
 `;

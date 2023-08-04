@@ -49,18 +49,18 @@ export const defaultEscapes: LatexPrinterConfigurationEscapeData[] = [
         replacer: '\\$1',
     },
     {
-        chars: ['%', '_', '#', '&', '\\$'],
-        inText: true,
-        inCodeSpan: true,
-        inLink: true,
-        replacer: '\\$1{}',
-    },
-    {
         chars: ['{', '}'],
         inText: false,
         inCodeSpan: true,
         inLink: false,
         replacer: '\\$1',
+    },
+    {
+        chars: ['%', '_', '#', '&', '\\$'],
+        inText: true,
+        inCodeSpan: true,
+        inLink: true,
+        replacer: '\\$1{}',
     },
     {
         chars: ['~'],

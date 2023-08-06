@@ -6,7 +6,9 @@
         "prettier": "prettier --check .",
         "prettier-fix": "prettier --write .",
         "printer-latex-prettier": "prettier --check printers/latex --ignore-path printers.prettierignore",
-        "printer-latex-prettier-fix": "prettier --write printers/latex --ignore-path printers.prettierignore"
+        "printer-latex-prettier-fix": "prettier --write printers/latex --ignore-path printers.prettierignore",
+        "printer-docx-prettier": "prettier --check printers/docx --ignore-path printers.prettierignore",
+        "printer-docx-prettier-fix": "prettier --write printers/docx --ignore-path printers.prettierignore"
     },
     "devDependencies": {
         "prettier": "^2.8.3"

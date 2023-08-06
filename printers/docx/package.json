@@ -1,0 +1,52 @@
+{
+    "name": "@md-to-latex/yaxm-printer-docx",
+    "version": "1.0.0-beta.1",
+    "description": "DOCX Printer for Yet Another eXtended Markdown",
+    "main": "dist/index.js",
+    "scripts": {
+        "prebuild": "npm run convert-schema",
+        "build": "tsc --build --pretty",
+        "watch": "tsc --build --watch --pretty",
+        "test": "jest test",
+        "convert-schema": "node ./utils/convert-schema.js && prettier --write src/config/types.ts"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/markdown-to-latex/yaxm-printers"
+    },
+    "keywords": [
+        "markdown",
+        "latex",
+        "converter",
+        "transpiler",
+        "report"
+    ],
+    "files": [
+        "dist/**",
+        "*.schema.json"
+    ],
+    "author": "Anatolii Titov <a@toliak.ru>",
+    "license": "MIT",
+    "devDependencies": {
+        "@md-to-latex/converter": "^2.0.0-beta.13",
+        "@types/jest": "^28.1.7",
+        "@types/js-yaml": "^4.0.5",
+        "@types/node": "^18.7.8",
+        "jest": "^28.1.3",
+        "json-schema-to-typescript": "^11.0.2",
+        "prettier": "^2.7.1",
+        "ts-jest": "^28.0.7",
+        "ts-node": "^10.9.1",
+        "typescript": "^4.7.4",
+        "utils__": "file:../../utils"
+    },
+    "dependencies": {
+        "convert-svg-to-png": "^0.6.4",
+        "docx": "^7.8.2",
+        "js-yaml": "^4.1.0",
+        "json5": "^2.2.1",
+        "jsonschema": "^1.4.1",
+        "texsvg": "^2.0.1",
+        "image-size": "^1.0.2"
+    }
+}

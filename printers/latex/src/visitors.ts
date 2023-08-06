@@ -176,6 +176,7 @@ export const processingVisitors: ProcessingVisitors = {
 
         const diagnostic: DiagnoseList = [];
 
+        // TODO: encapsulate (duplication with docx printer)
         while (parent !== null) {
             if (parent.type === NodeType.List) {
                 parentList ??= parent as ListNode;
@@ -214,7 +215,7 @@ export const processingVisitors: ProcessingVisitors = {
         );
         return {
             result: latexItemResult.result,
-            diagnostic,
+            diagnostic: [...diagnostic, ...latexItemResult.diagnostic],
         };
     },
     [NodeType.Paragraph]: (printer, node) => {

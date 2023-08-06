@@ -36,7 +36,7 @@ import {
     printKeyNode,
     printLazyNumberNode,
 } from './printer';
-import {RenderMathInterpretation} from "./printerConfig";
+import { RenderMathInterpretation } from './printerConfig';
 
 // Editing
 
@@ -540,13 +540,16 @@ export const processingVisitors: ProcessingVisitors = {
     [NodeType.LatexSpan]: internalTODO,
     [NodeType.Formula]: internalUnparsableNodeType,
     [NodeType.FormulaSpan]: async (printer, node) => {
-        const toResult: Record<RenderMathInterpretation, () => Promise<docx.XmlComponent[]>> = {
-            "docxMath": async () => [
+        const toResult: Record<
+            RenderMathInterpretation,
+            () => Promise<docx.XmlComponent[]>
+        > = {
+            docxMath: async () => [
                 new docx.Math({
                     children: [new docx.TextRun(node.text)],
                 }),
             ],
-            "picture": async () => [
+            picture: async () => [
                 createTextRunExt({
                     children: [await formulaNodeToPicture(node)],
                     position: -6,

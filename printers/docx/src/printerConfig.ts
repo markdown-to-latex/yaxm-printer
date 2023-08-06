@@ -96,9 +96,7 @@ export type LatexInterpretation =
     | 'italic'
     | 'quotes';
 
-export type RenderMathInterpretation =
-    | 'docxMath'
-    | 'picture';
+export type RenderMathInterpretation = 'docxMath' | 'picture';
 
 export interface DocxPrinterConfiguration {
     useLinkAs: LatexInterpretation;

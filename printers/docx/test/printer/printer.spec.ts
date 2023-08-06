@@ -1,20 +1,18 @@
-import {parseFile} from '@md-to-latex/converter/dist/ast/parsing';
-import {applyMacrosFull} from '@md-to-latex/converter/dist/macro';
-import {buildConfig, createPrinterDocx} from '../../src';
-import {DiagnoseList} from '@md-to-latex/converter/dist/diagnostic';
-import {YAXMDocxPrinterConfig} from '../../src/config';
-import {XmlComponent} from "docx";
+import { parseFile } from '@md-to-latex/converter/dist/ast/parsing';
+import { applyMacrosFull } from '@md-to-latex/converter/dist/macro';
+import { buildConfig, createPrinterDocx } from '../../src';
+import { DiagnoseList } from '@md-to-latex/converter/dist/diagnostic';
+import { YAXMDocxPrinterConfig } from '../../src/config';
+import { XmlComponent } from 'docx';
 
 async function processingChain(
     text: string,
     config?: Partial<YAXMDocxPrinterConfig>,
-): Promise<
-    {
-        result: XmlComponent[];
-        diagnostic: DiagnoseList;
-    }
-> {
-    const {result: fileNode, diagnostic: fileDiagnostic} = parseFile(
+): Promise<{
+    result: XmlComponent[];
+    diagnostic: DiagnoseList;
+}> {
+    const { result: fileNode, diagnostic: fileDiagnostic } = parseFile(
         text,
         'filepath',
     );
@@ -22,7 +20,7 @@ async function processingChain(
     const macroDiagnostic = applyMacrosFull(fileNode);
 
     const printer = createPrinterDocx(buildConfig(config));
-    const {result, diagnostic: printerDiagnostic} = await printer.processNode(
+    const { result, diagnostic: printerDiagnostic } = await printer.processNode(
         printer,
         fileNode,
     );

@@ -27,7 +27,11 @@ describe('convertMarkdownFiles', function () {
             const fullOutPath = path.join(__dirname, data.fileInfo.out);
 
             fs.mkdirSync(path.dirname(fullOutPath), { recursive: true });
-            fs.writeFileSync(fullOutPath, result.result.toString() /*TODO: WTF???*/, 'utf-8');
+            fs.writeFileSync(
+                fullOutPath,
+                result.result.toString() /*TODO: WTF???*/,
+                'utf-8',
+            );
 
             fullDiagnosticList.push(...result.diagnostic);
         });

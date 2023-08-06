@@ -1,18 +1,20 @@
-import { parseFile } from '@md-to-latex/converter/dist/ast/parsing';
-import { applyMacrosFull } from '@md-to-latex/converter/dist/macro';
-import { buildConfig, createPrinterDocx } from '../../src';
-import { DiagnoseList } from '@md-to-latex/converter/dist/diagnostic';
-import { YAXMDocxPrinterConfig } from '../../src/config';
-import { XmlComponent } from "docx";
+import {parseFile} from '@md-to-latex/converter/dist/ast/parsing';
+import {applyMacrosFull} from '@md-to-latex/converter/dist/macro';
+import {buildConfig, createPrinterDocx} from '../../src';
+import {DiagnoseList} from '@md-to-latex/converter/dist/diagnostic';
+import {YAXMDocxPrinterConfig} from '../../src/config';
+import {XmlComponent} from "docx";
 
-function processingChain(
+async function processingChain(
     text: string,
     config?: Partial<YAXMDocxPrinterConfig>,
-): {
-    result: XmlComponent[];
-    diagnostic: DiagnoseList;
-} {
-    const { result: fileNode, diagnostic: fileDiagnostic } = parseFile(
+): Promise<
+    {
+        result: XmlComponent[];
+        diagnostic: DiagnoseList;
+    }
+> {
+    const {result: fileNode, diagnostic: fileDiagnostic} = parseFile(
         text,
         'filepath',
     );
@@ -20,7 +22,7 @@ function processingChain(
     const macroDiagnostic = applyMacrosFull(fileNode);
 
     const printer = createPrinterDocx(buildConfig(config));
-    const { result, diagnostic: printerDiagnostic } = printer.processNode(
+    const {result, diagnostic: printerDiagnostic} = await printer.processNode(
         printer,
         fileNode,
     );
@@ -36,8 +38,8 @@ function processingChain(
 }
 
 describe('simple md to latex docs printer', () => {
-    test('Paragraph', () => {
-        const result = processingChain(`
+    test('Paragraph', async () => {
+        const result = await processingChain(`
 # Header
 
 Text
@@ -46,8 +48,8 @@ Text
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Subheader + List + Code Span', () => {
-        const result = processingChain(`
+    test('Subheader + List + Code Span', async () => {
+        const result = await processingChain(`
 # Header
 
 - A
@@ -68,8 +70,8 @@ Text
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Header + Image + Code + Image', () => {
-        const result = processingChain(`
+    test('Header + Image + Code + Image', async () => {
+        const result = await processingChain(`
 # Header
 
 ![img-1](./assets/img/dolphin.png)(Image name)(@h 5cm)
@@ -87,8 +89,8 @@ def main():
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Del node', () => {
-        const result = processingChain(`
+    test('Del node', async () => {
+        const result = await processingChain(`
 Test==node *what* hell==yeah we~ll.
         `);
 
@@ -96,8 +98,8 @@ Test==node *what* hell==yeah we~ll.
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Code + Code', () => {
-        const result = processingChain(`
+    test('Code + Code', async () => {
+        const result = await processingChain(`
 # Header
 
 Code in !PK[code-1] и !PK[code-2].
@@ -118,8 +120,8 @@ def hello_world():
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Table', () => {
-        const result = processingChain(`
+    test('Table', async () => {
+        const result = await processingChain(`
 Demonstrated in table !TK[table].
 
 !T[table](Table with content)
@@ -134,8 +136,8 @@ Demonstrated in table !TK[table].
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Header + Formula', () => {
-        const result = processingChain(`
+    test('Header + Formula', async () => {
+        const result = await processingChain(`
 # Header
 
 $$$math
@@ -147,8 +149,8 @@ $$$
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Inline formula must be wrapped with spaces', () => {
-        const result = processingChain(`
+    test('Inline formula must be wrapped with spaces', async () => {
+        const result = await processingChain(`
 Inlined formula $\`\\sigma^2_w(t)=\\omega_0(t)\\sigma^2_0(t)+\\omega_1(t)\\sigma^2_1(t)\`$
 into the sentence.
 `);
@@ -157,15 +159,15 @@ into the sentence.
         expect(result.result).toMatchSnapshot();
     });
 
-    test('bold and italic', () => {
-        const result = processingChain(`**Bold**: *testing*`);
+    test('bold and italic', async () => {
+        const result = await processingChain(`**Bold**: *testing*`);
 
         expect(result.diagnostic).toHaveLength(0);
         expect(result.result).toMatchSnapshot();
     });
 
-    test('ListItem + Br + Text must have 2 line breaks', () => {
-        const result = processingChain(`1. Item  
+    test('ListItem + Br + Text must have 2 line breaks', async () => {
+        const result = await processingChain(`1. Item  
 New Line
 
 2. New Item`);
@@ -174,8 +176,8 @@ New Line
         expect(result.result).toMatchSnapshot();
     });
 
-    test('ListItem + MathLatex must have 2 line breaks', () => {
-        const result = processingChain(`1. Text  
+    test('ListItem + MathLatex must have 2 line breaks', async () => {
+        const result = await processingChain(`1. Text  
 $$$math
 Some text here
 $$$`);
@@ -186,8 +188,8 @@ $$$`);
 });
 
 describe('Applications', () => {
-    test('with list', () => {
-        const result = processingChain(`\
+    test('with list', async () => {
+        const result = await processingChain(`\
 !AC[code-full](@dir ./assets/code)(@file template-full.py)(@lang python)
 !AC[code-full2](@dir ./assets/code)(@file template-full2.py)(@lang python)
 !APR[picture-large](Large scheme)(./assets/img/circuit.png)
@@ -207,8 +209,8 @@ See application !AK[code-full].
         expect(result.result).toMatchSnapshot();
     });
 
-    test('with multiple columns', () => {
-        const result = processingChain(`
+    test('with multiple columns', async () => {
+        const result = await processingChain(`
 !AC[code-full](@dir ./assets/code)(@file template-full.py)(@lang python)(@c 2)
         
 # Header
@@ -224,8 +226,8 @@ See application !AK[code-full].
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Unused application, should throw error', () => {
-        const result = processingChain(`
+    test('Unused application, should throw error', async () => {
+        const result = await processingChain(`
 !AC[code-full](./assets/code)(template-full.py)(python)
 
 !LAA[]
@@ -236,8 +238,8 @@ See application !AK[code-full].
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Undefined application, should throw error', () => {
-        const result = processingChain(`
+    test('Undefined application, should throw error', async () => {
+        const result = await processingChain(`
 !AK[nope]
 `);
 
@@ -248,8 +250,8 @@ See application !AK[code-full].
 });
 
 describe('References', () => {
-    test('with list', () => {
-        const result = processingChain(`
+    test('with list', async () => {
+        const result = await processingChain(`
 !R[ref-1](
     H.~Y.~~Ignat. <<Reference~~1>> // Some Journal, 1867
 )
@@ -271,8 +273,8 @@ Code from reference !RK[ref-2] describes image from reference !RK[ref-1].
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Unused reference, should throw error', () => {
-        const result = processingChain(`
+    test('Unused reference, should throw error', async () => {
+        const result = await processingChain(`
 !R[ref](
     A.~A.~~Amogus. <<Impostor~~theorem>> // Steam library, 2021
 )
@@ -285,8 +287,8 @@ Code from reference !RK[ref-2] describes image from reference !RK[ref-1].
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Undefined reference, should throw error', () => {
-        const result = processingChain(`
+    test('Undefined reference, should throw error', async () => {
+        const result = await processingChain(`
 !RK[nope]
 `);
 
@@ -297,8 +299,8 @@ Code from reference !RK[ref-2] describes image from reference !RK[ref-1].
 });
 
 describe('complex latex', function () {
-    test('Inline math', () => {
-        const result = processingChain(`
+    test('Inline math', async () => {
+        const result = await processingChain(`
 Text $\`a = b + \\sum_{i=0}^\\infty c_i\`$ ending.
 `);
 
@@ -310,8 +312,8 @@ Text $\`a = b + \\sum_{i=0}^\\infty c_i\`$ ending.
 `);
     });
 
-    test('Text with percents', () => {
-        const result = processingChain(`
+    test('Text with percents', async () => {
+        const result = await processingChain(`
 Text with 10% number.
 `);
 
@@ -319,8 +321,8 @@ Text with 10% number.
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Text with escapes ("<" should be correct also)', () => {
-        const result = processingChain(`
+    test('Text with escapes ("<" should be correct also)', async () => {
+        const result = await processingChain(`
 Text with <<>assdasd.
 `);
 
@@ -328,8 +330,8 @@ Text with <<>assdasd.
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Tag <hr> should break the page', () => {
-        const result = processingChain(`
+    test('Tag <hr> should break the page', async () => {
+        const result = await processingChain(`
 The first page
 
 ---------------------------------------
@@ -341,8 +343,8 @@ The second page
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Tag <br> should put additional break', () => {
-        const result = processingChain(`
+    test('Tag <br> should put additional break', async () => {
+        const result = await processingChain(`
 The first line  
 The second line
 `);
@@ -351,8 +353,8 @@ The second line
         expect(result.result).toMatchSnapshot();
     });
 
-    test("Text ' dereplacement", () => {
-        const result = processingChain(`
+    test("Text ' dereplacement", async () => {
+        const result = await processingChain(`
 Otsu's method is a one-dimensional discrete analog of Fisher's 
 Discriminant Analysis, is related to Jenks optimization method.
 `);
@@ -361,15 +363,15 @@ Discriminant Analysis, is related to Jenks optimization method.
         expect(result.result).toMatchSnapshot();
     });
 
-    test('CodeSpan dereplacement', () => {
-        const result = processingChain('`"sample & text"`');
+    test('CodeSpan dereplacement', async () => {
+        const result = await processingChain('`"sample & text"`');
 
         expect(result.diagnostic).toHaveLength(0);
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Inline latex math dereplacement', () => {
-        const result = processingChain(`
+    test('Inline latex math dereplacement', async () => {
+        const result = await processingChain(`
 $\`a > b < c\`$
 `);
 
@@ -377,8 +379,8 @@ $\`a > b < c\`$
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Table and picture key', () => {
-        const result = processingChain(`
+    test('Table and picture key', async () => {
+        const result = await processingChain(`
 Displayed in picture !PK[gray-square] (!PK[gray-square]) and table !TK[table].
 
 ![gray-square](./assets/img/example.png)(Gray square)(@h 5cm)
@@ -398,8 +400,8 @@ Displayed in picture !PK[gray-square] (!PK[gray-square]) and table !TK[table].
 
 describe('latex picture after table (#52)', function () {
     // See https://github.com/markdown-to-latex/converter/issues/52
-    test('Picture right after the table', () => {
-        const result = processingChain(
+    test('Picture right after the table', async () => {
+        const result = await processingChain(
             `!T[table](Table example)
 
 | Key           | Value                       |
@@ -414,8 +416,8 @@ describe('latex picture after table (#52)', function () {
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Table + text + picture', () => {
-        const result = processingChain(
+    test('Table + text + picture', async () => {
+        const result = await processingChain(
             `!T[table](Table example)
 
 | Key           | Value                       |
@@ -434,8 +436,8 @@ Sample text line
 });
 
 describe('url variants', () => {
-    test('Default url', () => {
-        const result = processingChain(
+    test('Default url', async () => {
+        const result = await processingChain(
             '[](https://example.com/index_page.html?asd=asdasd&gege=gegege#header)',
         );
 
@@ -443,8 +445,8 @@ describe('url variants', () => {
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Bold url', () => {
-        const result = processingChain(
+    test('Bold url', async () => {
+        const result = await processingChain(
             '[](https://example.com/index_page.html?asd=asdasd&gege=gegege#header)',
             {
                 useLinkAs: 'bold',
@@ -455,8 +457,8 @@ describe('url variants', () => {
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Italic url', () => {
-        const result = processingChain(
+    test('Italic url', async () => {
+        const result = await processingChain(
             '[](https://example.com/index_page.html?asd=asdasd&gege=gegege#header)',
             {
                 useLinkAs: 'italic',
@@ -467,8 +469,8 @@ describe('url variants', () => {
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Underlined url', () => {
-        const result = processingChain(
+    test('Underlined url', async () => {
+        const result = await processingChain(
             '[](https://example.com/index_page.html?asd=asdasd&gege=gegege#header)',
             {
                 useLinkAs: 'underline',
@@ -479,8 +481,8 @@ describe('url variants', () => {
         expect(result.result).toMatchSnapshot();
     });
 
-    test('No escape & code url', () => {
-        const result = processingChain(
+    test('No escape & code url', async () => {
+        const result = await processingChain(
             '[](https://example.com/index_page.html?asd=asdasd&asdasd=gege#header)',
             {
                 useLinkAs: 'monospace',
@@ -493,8 +495,8 @@ describe('url variants', () => {
 });
 
 describe('Escapes', () => {
-    test('Default escapes', () => {
-        const result = processingChain(`
+    test('Default escapes', async () => {
+        const result = await processingChain(`
 # Header
 
 <https://testing.url/com?some=thing&wtf#xdxdxd>
@@ -508,8 +510,8 @@ The "definition" increased by 1% (more text more text).
 });
 
 describe('CodeSpan', () => {
-    test('Monospace', () => {
-        const result = processingChain('CodeSpan `text & text`.', {
+    test('Monospace', async () => {
+        const result = await processingChain('CodeSpan `text & text`.', {
             useCodeSpanAs: 'monospace',
         });
 
@@ -517,8 +519,8 @@ describe('CodeSpan', () => {
         expect(result.result).toMatchSnapshot();
     });
 
-    test('Quote', () => {
-        const result = processingChain('CodeSpan `text & text`.', {
+    test('Quote', async () => {
+        const result = await processingChain('CodeSpan `text & text`.', {
             useCodeSpanAs: 'quotes',
         });
 

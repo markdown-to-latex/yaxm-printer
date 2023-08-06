@@ -276,12 +276,12 @@ export async function createWordPicture(
             children: [
                 new docx.TextRun({
                     text: `Unknown picture ${filePath}`,
-                    color: 'red',
+                    color: 'f00000',
                 }),
             ],
         });
 
-    if (!filePath) {
+    if (!filePath || !fs.existsSync(filePath)) {
         diagnostic.push(
             nodeToDiagnose(
                 node.href,

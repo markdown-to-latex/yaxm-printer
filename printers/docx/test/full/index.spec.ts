@@ -20,13 +20,14 @@ describe('convertMarkdownFiles', function () {
         fullDiagnosticList.push(...convertResult.diagnostic);
 
         const printer = createPrinterDocx(buildConfig());
-        convertResult.result.forEach(data => {
-            const result = printer.processNode(printer, data.fileNode);
+        // TODO: map and wait all of them!!!
+        convertResult.result.forEach(async data => {
+            const result = await printer.processNode(printer, data.fileNode);
 
             const fullOutPath = path.join(__dirname, data.fileInfo.out);
 
             fs.mkdirSync(path.dirname(fullOutPath), { recursive: true });
-            fs.writeFileSync(fullOutPath, result.result, 'utf-8');
+            fs.writeFileSync(fullOutPath, result.result.toString() /*TODO: WTF???*/, 'utf-8');
 
             fullDiagnosticList.push(...result.diagnostic);
         });

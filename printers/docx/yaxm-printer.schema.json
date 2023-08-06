@@ -9,7 +9,7 @@
         },
         "useLinkAs": {
             "type": "string",
-            "description": "How to interpret markdown Link?",
+            "description": "How to interpret YAXM Link?",
             "enum": [
                 "default",
                 "monospace",
@@ -22,7 +22,7 @@
         },
         "useCodeSpanAs": {
             "type": "string",
-            "description": "How to interpret markdown CodeSpan?",
+            "description": "How to interpret YAXM CodeSpan?",
             "enum": [
                 "default",
                 "monospace",
@@ -32,6 +32,15 @@
                 "italic"
             ],
             "default": "quotes"
+        },
+        "renderMathAs": {
+            "type": "string",
+            "description": "How to interpret YAXM Formulas?",
+            "enum": [
+                "docxMath",
+                "picture"
+            ],
+            "default": "picture"
         },
         "margin": {
             "$ref": "#/definitions/DocxMarginInfo"

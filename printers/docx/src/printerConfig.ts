@@ -96,9 +96,14 @@ export type LatexInterpretation =
     | 'italic'
     | 'quotes';
 
+export type RenderMathInterpretation =
+    | 'docxMath'
+    | 'picture';
+
 export interface DocxPrinterConfiguration {
     useLinkAs: LatexInterpretation;
     useCodeSpanAs: LatexInterpretation;
+    renderMathAs: RenderMathInterpretation;
 
     margin: LatexPrinterConfigurationMarginInfo;
 }
@@ -114,6 +119,7 @@ export interface DocxPrinterConfigurationPartial
 const defaultConfig: DocxPrinterConfiguration = {
     useCodeSpanAs: 'quotes',
     useLinkAs: 'default',
+    renderMathAs: 'picture',
     margin: {
         imageInnerTextSep: '3em',
         imageBelowCaptionSkip: '-4ex',
@@ -141,6 +147,7 @@ export function buildConfig(
     return {
         useCodeSpanAs: config?.useCodeSpanAs ?? defaultConfig.useCodeSpanAs,
         useLinkAs: config?.useLinkAs ?? defaultConfig.useLinkAs,
+        renderMathAs: config?.renderMathAs ?? defaultConfig.renderMathAs,
         margin: {
             imageInnerTextSep:
                 config?.margin?.imageInnerTextSep ??

@@ -150,6 +150,7 @@ export async function printFormulaProcessedNode(
             insideHorizontal: { style: docx.BorderStyle.NONE },
         },
         rows: [
+            // TODO: configurable
             new docx.TableRow({
                 children: [
                     new docx.TableCell({

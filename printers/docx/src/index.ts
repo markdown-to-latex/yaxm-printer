@@ -127,6 +127,9 @@ export async function printerResultToBuffer(
                     default: new docx.Footer({
                         children: [
                             new docx.Paragraph({
+                                spacing: {
+                                    before: docx.convertMillimetersToTwip(2.5),
+                                },
                                 indent: {
                                     firstLine: 0,
                                 },

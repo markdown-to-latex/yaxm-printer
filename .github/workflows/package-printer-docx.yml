@@ -13,10 +13,10 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
-            - name: Setup node 16
+            - name: Setup node 18
               uses: actions/setup-node@v3
               with:
-                  node-version: '16.x'
+                  node-version: '18.x'
             - name: Cache Node files
               uses: actions/cache@v3
               env:
@@ -41,10 +41,10 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
-            - name: Setup node 16
+            - name: Setup node 18
               uses: actions/setup-node@v3
               with:
-                  node-version: '16.x'
+                  node-version: '18.x'
             - name: Cache Node files
               uses: actions/cache@v3
               env:
@@ -82,10 +82,10 @@ jobs:
             - prettier
         steps:
             - uses: actions/checkout@v3
-            - name: Setup node 16
+            - name: Setup node 18
               uses: actions/setup-node@v3
               with:
-                  node-version: '16.x'
+                  node-version: '18.x'
                   registry-url: 'https://registry.npmjs.org'
             - name: Cache Node files
               uses: actions/cache@v3

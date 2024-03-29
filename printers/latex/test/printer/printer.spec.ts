@@ -400,6 +400,25 @@ Displayed in picture !PK[gray-square] (!PK[gray-square]) and table !TK[table].
         expect(result.diagnostic).toHaveLength(0);
         expect(result.result).toMatchSnapshot();
     });
+
+    test('Table with fixed width and picture key with prefix', () => {
+        const result = processingChain(`
+!SWEARIHATEIT[](anyKeyPrefix)(1.)
+
+Displayed in picture !PK[gray-square] (!PK[gray-square]) and table !TK[table].
+
+![gray-square](./assets/img/example.png)(Gray square)(@h 5cm)
+
+!T[table](Table)
+        
+|Key    |Value |
+|--(4cm)--|------|
+|Static number | 50 |
+`);
+
+        expect(result.diagnostic).toHaveLength(0);
+        expect(result.result).toMatchSnapshot();
+    });
 });
 
 describe('latex picture after table (#52)', function () {

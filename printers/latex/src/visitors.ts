@@ -3,8 +3,10 @@ import {
     getNodeRightNeighbourLeaf,
     ListNode,
     NodeAbstract,
+    NodeTableAlign,
     NodeType,
     RawNodeType,
+    TextNode,
 } from '@md-to-latex/converter/dist/ast/node';
 
 import { NodesByType, RawNodesByType } from '@md-to-latex/converter/dist/ast';
@@ -33,9 +35,9 @@ import {
     getLatexRawApplication,
     getLatexRotatedPicture,
     getLatexTable,
+    LatexTableColumnInfo,
 } from './printer';
-import { removeStringUnnecessaryLineBreaks } from './string';
-import { Escaper } from './string';
+import { Escaper, removeStringUnnecessaryLineBreaks } from './string';
 
 function isNodeBeforeBoxed(node: NodeAbstract): boolean {
     let right = getNodeRightNeighbourLeaf(node);
@@ -151,14 +153,36 @@ export const processingVisitors: ProcessingVisitors = {
         const contentResult = printer.processNodeList(printer, node.rows);
         diagnostic.push(...contentResult.diagnostic);
 
+        let columnsSettings: LatexTableColumnInfo[] =
+            node.header[1].children.map(v => ({
+                align: v.align ?? NodeTableAlign.Default,
+                fixedWidth: v.fixedWidth,
+            }));
+        let colAmount = node.header[0].children.length;
+        if (columnsSettings.length !== colAmount) {
+            diagnostic.push(
+                nodeToDiagnose(
+                    node,
+                    DiagnoseSeverity.Error,
+                    DiagnoseErrorType.PrinterError,
+                    `columnsSettings.length (${columnsSettings.length}) !== colAmount (${colAmount})`,
+                ),
+            );
+            return {
+                result: '',
+                diagnostic,
+            };
+        }
+
         return {
             result: getLatexTable(
                 {
                     tableIndex: (node.index + 1).toString(),
                     tableTitle: nameResult.result,
                     header: headerResult.result,
+                    columnsSettings: columnsSettings,
                     content: contentResult.result,
-                    colAmount: node.header[0].children.length,
+                    colAmount: colAmount,
                     removeSpace: isNodeBeforeBoxed(node),
                 },
                 printer.config,
@@ -395,11 +419,11 @@ export const processingVisitors: ProcessingVisitors = {
     [NodeType.Comment]: internalUnparsableNodeType,
 
     [ProcessedNodeType.PictureKey]: (printer, node) => ({
-        result: (node.index + 1).toString(),
+        result: printer.config.anyKeyPrefix + (node.index + 1).toString(),
         diagnostic: [],
     }),
     [ProcessedNodeType.TableKey]: (printer, node) => ({
-        result: (node.index + 1).toString(),
+        result: printer.config.anyKeyPrefix + (node.index + 1).toString(),
         diagnostic: [],
     }),
     [ProcessedNodeType.ApplicationKey]: (printer, node) =>
@@ -418,7 +442,7 @@ export const processingVisitors: ProcessingVisitors = {
         diagnostic: [],
     }),
     [ProcessedNodeType.FormulaKey]: (printer, node) => ({
-        result: `\\ref{eqn:${node.index}}`,
+        result: `${printer.config.anyKeyPrefix}\\ref{eqn:${node.index}}`,
         diagnostic: [],
     }),
 
@@ -499,6 +523,61 @@ export const processingVisitors: ProcessingVisitors = {
         return {
             result: `${node.numberLazy()}`,
             diagnostic: [],
+        };
+    },
+
+    [ProcessedNodeType.PrinterCmd]: (printer, node) => {
+        const diagnostic: DiagnoseList = [];
+        if (node.command === 'anyKeyPrefix') {
+            if (node.data.length === 0) {
+                printer.config.anyKeyPrefix = '';
+            } else if (node.data.length !== 1) {
+                diagnostic.push(
+                    nodeToDiagnose(
+                        node,
+                        DiagnoseSeverity.Error,
+                        DiagnoseErrorType.PrinterError,
+                        'Expected exactly one! Text node',
+                    ),
+                );
+            } else {
+                const arg = node.data[0];
+                if (arg.type !== NodeType.Text) {
+                    diagnostic.push(
+                        nodeToDiagnose(
+                            node,
+                            DiagnoseSeverity.Error,
+                            DiagnoseErrorType.PrinterError,
+                            'Expected exactly one Text! node',
+                        ),
+                    );
+                } else {
+                    let prefix = (arg as TextNode).text;
+                    printer.config.anyKeyPrefix = prefix;
+                    diagnostic.push(
+                        nodeToDiagnose(
+                            node,
+                            DiagnoseSeverity.Info,
+                            DiagnoseErrorType.PrinterError,
+                            `set anyKeyPrefix to '${prefix}'`,
+                        ),
+                    );
+                }
+            }
+        } else {
+            diagnostic.push(
+                nodeToDiagnose(
+                    node,
+                    DiagnoseSeverity.Error,
+                    DiagnoseErrorType.PrinterError,
+                    `Unknown command: "${node.command}"`,
+                ),
+            );
+        }
+
+        return {
+            result: '',
+            diagnostic,
         };
     },
 };

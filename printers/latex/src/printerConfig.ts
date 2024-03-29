@@ -106,6 +106,11 @@ export interface LatexPrinterConfiguration {
     useCodeSpanAs: LatexInterpretation;
 
     margin: LatexPrinterConfigurationMarginInfo;
+
+    /**
+     * Picture, formula, table key prefix
+     */
+    anyKeyPrefix: string;
 }
 
 export interface LatexPrinterConfigurationEscapeDataPartial
@@ -146,6 +151,7 @@ const defaultConfig: LatexPrinterConfiguration = {
         mathAboveDisplayShortSkip: '0pt',
         mathBelowDisplayShortSkip: '0pt',
     },
+    anyKeyPrefix: '',
 };
 
 const defaultEscapeDataConfig: LatexPrinterConfigurationEscapeData = {
@@ -222,6 +228,7 @@ export function buildConfig(
                 config?.margin?.mathBelowDisplayShortSkip ??
                 defaultConfig.margin.mathBelowDisplayShortSkip,
         },
+        anyKeyPrefix: config?.anyKeyPrefix ?? defaultConfig.anyKeyPrefix,
     };
 }
 

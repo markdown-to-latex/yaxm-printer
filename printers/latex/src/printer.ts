@@ -1,4 +1,8 @@
-import { NodeAbstract, NodeType } from '@md-to-latex/converter/dist/ast/node';
+import {
+    NodeAbstract,
+    NodeTableAlign,
+    NodeType,
+} from '@md-to-latex/converter/dist/ast/node';
 import {
     LatexInterpretation,
     LatexPrinterConfiguration,
@@ -221,15 +225,20 @@ export function getLatexImage(
     \\centering
     \\includegraphics${dimensions}{${info.href}}
     \\captionsetup{justification=centering,indention=0cm,labelformat=empty,margin={0pt,0cm},font={stretch=1.5}}
-    \\caption{Рисунок ${info.pictureIndex} -- ${info.pictureTitle}}
+    \\caption{Рисунок ${config.anyKeyPrefix}${info.pictureIndex} -- ${info.pictureTitle}}
 \\end{figure}
 `;
 }
 
+export interface LatexTableColumnInfo {
+    align: NodeTableAlign;
+    fixedWidth?: string;
+}
 export interface LatexTableInfo {
     tableIndex: string;
     tableTitle: string;
     header: string;
+    columnsSettings: LatexTableColumnInfo[];
     content: string;
     colAmount: number;
     removeSpace: boolean;
@@ -241,7 +250,28 @@ export function getLatexTable(
 ): string {
     let colsTemplate = `|`;
     for (let i = 0; i < info.colAmount; i++) {
-        colsTemplate += 'c|';
+        const flag = (() => {
+            let colInfo = info.columnsSettings[i];
+            const ifNotSized = (() => {
+                return {
+                    [NodeTableAlign.Default]: 'c',
+                    [NodeTableAlign.Center]: 'c',
+                    [NodeTableAlign.Left]: 'l',
+                    [NodeTableAlign.Right]: 'r',
+                }[colInfo.align];
+            })();
+            const ifSized = (() => {
+                return {
+                    [NodeTableAlign.Default]: `>{\\centering\\arraybackslash}p{${colInfo.fixedWidth}}`,
+                    [NodeTableAlign.Center]: `>{\\centering\\arraybackslash}p{${colInfo.fixedWidth}}`,
+                    // Left is right, right is left. Welcome to TeX >.<
+                    [NodeTableAlign.Left]: `>{\\raggedright\\arraybackslash}p{${colInfo.fixedWidth}}`,
+                    [NodeTableAlign.Right]: `>{\\raggedleft\\arraybackslash}p{${colInfo.fixedWidth}}`,
+                }[colInfo.align];
+            })();
+            return colInfo.fixedWidth !== undefined ? ifSized : ifNotSized;
+        })();
+        colsTemplate += flag + '|';
     }
 
     return `
@@ -258,11 +288,11 @@ ${
 
 \\begin{longtable}[H]{${colsTemplate}}
     \\captionsetup{justification=justified,indention=0cm,labelformat=empty, margin={2pt, 0cm},font={stretch=1.5}}
-    \\caption{Таблица ${info.tableIndex} -- ${info.tableTitle}}
+    \\caption{Таблица ${config.anyKeyPrefix}${info.tableIndex} -- ${info.tableTitle}}
     \\\\\\hline
     ${info.header}
     \\endfirsthead
-    \\caption{Продолжение таблицы ${info.tableIndex}} \\\\\\hline
+    \\caption{Продолжение таблицы ${config.anyKeyPrefix}${info.tableIndex}} \\\\\\hline
     ${info.header}
     \\endhead
     \\endfoot
@@ -306,7 +336,7 @@ export function getLatexCode(
 ${info.text}
     \\end{minted}
     \\captionsetup{justification=centering,indention=0cm,labelformat=empty, margin={0pt, 0cm},font={stretch=1.5}}
-    \\caption{Рисунок ${info.codeIndex} -- ${info.codeTitle}}
+    \\caption{Рисунок ${config.anyKeyPrefix}${info.codeIndex} -- ${info.codeTitle}}
 \\end{figure}
 `;
 }
@@ -347,7 +377,7 @@ export function getLatexMath(
 \\setlength{\\belowdisplayshortskip}{${
         config.margin!.mathBelowDisplayShortSkip
     }}
-\\begin{equation}\\label{eqn:${index}}
+\\begin{equation}\\tag{${config.anyKeyPrefix}\\ref{eqn:${index}}}\\label{eqn:${index}}
 \\displaystyle
 ${text}
 \\end{equation}

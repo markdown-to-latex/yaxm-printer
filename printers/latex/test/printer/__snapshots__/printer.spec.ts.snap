@@ -286,6 +286,47 @@ Random number &  \\\\showcaserandomnumber \\\\\\\\ \\\\hline
 "
 `;
 
+exports[`complex latex Table with fixed width and picture key with prefix 1`] = `
+"Displayed in picture 1.1 (1.1) and table 1.1.
+
+\\setlength{\\intextsep}{3em}
+\\setlength{\\belowcaptionskip}{-4ex}
+\\setlength{\\abovecaptionskip}{0.5em}
+
+\\begin{figure}[H]
+    \\centering
+    \\includegraphics[height=5cm]{./assets/img/example.png}
+    \\captionsetup{justification=centering,indention=0cm,labelformat=empty,margin={0pt,0cm},font={stretch=1.5}}
+    \\caption{Рисунок 1.1 -- Gray square}
+\\end{figure}
+
+\\fontsize{\\tablefontsize}{\\tablefontsize}\\selectfont
+\\setlength{\\belowcaptionskip}{0em}
+\\setlength{\\abovecaptionskip}{0em}
+\\setlength{\\LTpre}{2em}
+\\setlength{\\LTpost}{2em}
+
+\\begin{longtable}[H]{|>{\\centering\\arraybackslash}p{4cm}|c|}
+    \\captionsetup{justification=justified,indention=0cm,labelformat=empty, margin={2pt, 0cm},font={stretch=1.5}}
+    \\caption{Таблица 1.1 -- Table}
+    \\\\\\hline
+    Key & Value\\\\ \\hline
+
+    \\endfirsthead
+    \\caption{Продолжение таблицы 1.1} \\\\\\hline
+    Key & Value\\\\ \\hline
+
+    \\endhead
+    \\endfoot
+    \\endlastfoot
+
+Static number & 50\\\\ \\hline
+
+\\end{longtable}
+\\fontsize{\\defaultfontsize}{\\defaultfontsize}\\selectfont\\setstretch{\\getstretch}
+"
+`;
+
 exports[`complex latex Tag <br> should put additional break 1`] = `
 "The first line
 

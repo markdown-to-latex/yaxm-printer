@@ -377,7 +377,7 @@ export function getLatexMath(
 \\setlength{\\belowdisplayshortskip}{${
         config.margin!.mathBelowDisplayShortSkip
     }}
-\\begin{equation}\\tag{${config.anyKeyPrefix}\\ref{eqn:${index}}}\\label{eqn:${index}}
+\\begin{equation}\\tag{${config.anyKeyPrefix}${index}}
 \\displaystyle
 ${text}
 \\end{equation}

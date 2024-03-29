@@ -434,7 +434,7 @@ export const processingVisitors: ProcessingVisitors = {
     }),
 
     [ProcessedNodeType.FormulaProcessed]: (printer, node) => ({
-        result: getLatexMath(node.text.text, node.index, printer.config),
+        result: getLatexMath(node.text.text, node.index + 1, printer.config),
         diagnostic: [],
     }),
     [ProcessedNodeType.FormulaNoLabelProcessed]: (printer, node) => ({
@@ -442,7 +442,7 @@ export const processingVisitors: ProcessingVisitors = {
         diagnostic: [],
     }),
     [ProcessedNodeType.FormulaKey]: (printer, node) => ({
-        result: `${printer.config.anyKeyPrefix}\\ref{eqn:${node.index}}`,
+        result: printer.config.anyKeyPrefix + (node.index + 1).toString(),
         diagnostic: [],
     }),
 

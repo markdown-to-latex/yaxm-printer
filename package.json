@@ -11,6 +11,6 @@
         "printer-docx-prettier-fix": "prettier --write printers/docx --ignore-path printers.prettierignore"
     },
     "devDependencies": {
-        "prettier": "^2.8.3"
+        "prettier": "^3.2.5"
     }
 }
